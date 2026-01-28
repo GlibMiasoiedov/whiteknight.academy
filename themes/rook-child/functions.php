@@ -4,55 +4,40 @@
  */
 
 /**
- * FIX: wp.i18n polyfill with watchdog protection
- * This creates wp.i18n AND prevents it from being overwritten
+ * FIX: Register a FAKE wp-i18n script that provides polyfill
+ * This ensures wp.i18n is available BEFORE any scripts that depend on it
  */
-add_action('wp_head', function () {
-    ?>
-    <script>
-    (function() {
-        // Create the polyfill functions
-        var i18nPolyfill = {
-            __: function(text) { return text; },
-            _x: function(text) { return text; },
-            _n: function(s, p, n) { return n === 1 ? s : p; },
-            _nx: function(s, p, n) { return n === 1 ? s : p; },
-            sprintf: function() {
-                var args = [].slice.call(arguments);
-                var fmt = args.shift() || '';
-                return fmt.replace(/%[sd]/g, function() { return args.shift() || ''; });
-            },
-            setLocaleData: function() {},
-            getLocaleData: function() { return {}; },
-            hasTranslation: function() { return false; },
-            isRTL: function() { return false; }
-        };
-
-        // Setup wp object with protected i18n
-        window.wp = window.wp || {};
-        
-        // Use Object.defineProperty to make i18n non-writable
-        Object.defineProperty(window.wp, 'i18n', {
-            value: i18nPolyfill,
-            writable: false,
-            configurable: true // Allow reconfiguration if needed
-        });
-        
-        console.log('[WK] wp.i18n polyfill installed with protection');
-    })();
-    </script>
-    <?php
-}, 0);
-
-// CRITICAL: Dequeue the real wp-i18n script to prevent it from overwriting our polyfill
-add_action('wp_enqueue_scripts', function () {
-    wp_dequeue_script('wp-i18n');
+add_action('init', function () {
+    // First, deregister the real wp-i18n if it exists
     wp_deregister_script('wp-i18n');
-}, 999); // Very late priority to catch all enqueues
 
-add_action('wp_footer', function () {
-    wp_dequeue_script('wp-i18n');
-}, 1);
+    // Register our fake wp-i18n with inline polyfill
+    wp_register_script('wp-i18n', false, array(), false, false);
+
+    // Add inline script that creates the polyfill
+    wp_add_inline_script('wp-i18n', '
+        (function() {
+            window.wp = window.wp || {};
+            if (window.wp.i18n && typeof window.wp.i18n.__ === "function") return;
+            window.wp.i18n = {
+                __: function(t) { return t; },
+                _x: function(t) { return t; },
+                _n: function(s, p, n) { return n === 1 ? s : p; },
+                _nx: function(s, p, n) { return n === 1 ? s : p; },
+                sprintf: function() {
+                    var a = [].slice.call(arguments);
+                    var f = a.shift() || "";
+                    return f.replace(/%[sd]/g, function() { return a.shift() || ""; });
+                },
+                setLocaleData: function() {},
+                getLocaleData: function() { return {}; },
+                hasTranslation: function() { return false; },
+                isRTL: function() { return false; }
+            };
+            console.log("[WK] wp.i18n polyfill loaded via fake wp-i18n script");
+        })();
+    ', 'before');
+}, 1); // Priority 1 = very early in init
 
 /**
  * Redirect Tutor "plain" URLs (/?post_type=page&p=ID або ?page_id=ID)
