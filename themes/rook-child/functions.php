@@ -4,14 +4,14 @@
  */
 
 /**
- * FIX: wp.i18n polyfill - runs at the VERY TOP of head and protects itself
- * Uses priority 0 to run before any other scripts
+ * FIX: wp.i18n polyfill with watchdog protection
+ * This creates wp.i18n AND prevents it from being overwritten
  */
 add_action('wp_head', function () {
     ?>
     <script>
     (function() {
-        // Create protected wp.i18n that cannot be overwritten
+        // Create the polyfill functions
         var i18nPolyfill = {
             __: function(text) { return text; },
             _x: function(text) { return text; },
@@ -28,31 +28,31 @@ add_action('wp_head', function () {
             isRTL: function() { return false; }
         };
 
-        // Ensure wp exists
+        // Setup wp object with protected i18n
         window.wp = window.wp || {};
         
-        // Set i18n if not exists
-        if (!window.wp.i18n || typeof window.wp.i18n.__ !== 'function') {
-            window.wp.i18n = i18nPolyfill;
-            console.log('[WK] wp.i18n polyfill installed');
-        }
-        
-        // Also set it to undefined-proof global for destructuring
-        // This handles cases like: const { __ } = wp.i18n;
-        Object.defineProperty(window, '__wpI18nPolyfill', {
+        // Use Object.defineProperty to make i18n non-writable
+        Object.defineProperty(window.wp, 'i18n', {
             value: i18nPolyfill,
             writable: false,
-            configurable: false
+            configurable: true // Allow reconfiguration if needed
         });
+        
+        console.log('[WK] wp.i18n polyfill installed with protection');
     })();
     </script>
     <?php
-}, 0); // Priority 0 = absolute first
-
-// Force wp-i18n script with high priority dependency
-add_action('wp_enqueue_scripts', function () {
-    wp_enqueue_script('wp-i18n');
 }, 0);
+
+// CRITICAL: Dequeue the real wp-i18n script to prevent it from overwriting our polyfill
+add_action('wp_enqueue_scripts', function () {
+    wp_dequeue_script('wp-i18n');
+    wp_deregister_script('wp-i18n');
+}, 999); // Very late priority to catch all enqueues
+
+add_action('wp_footer', function () {
+    wp_dequeue_script('wp-i18n');
+}, 1);
 
 /**
  * Redirect Tutor "plain" URLs (/?post_type=page&p=ID або ?page_id=ID)
