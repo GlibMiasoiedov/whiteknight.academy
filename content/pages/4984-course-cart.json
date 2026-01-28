@@ -1,0 +1,13 @@
+﻿{
+    "slug":  "course-cart",
+    "id":  4984,
+    "excerpt":  "\u003cp\u003eNo courses in the cart Continue Browsing\u003c/p\u003e\n",
+    "parent":  0,
+    "template":  "",
+    "content":  "\u003cdiv class=\"tutor-cart-page\"\u003e\n\u003cdiv class=\"tutor-cart-page-wrapper\"\u003e\n\u003cdiv class=\"tutor-container\"\u003e\n\u003cdiv class=\"tutor-cart-empty-state\"\u003e\n\t\t\t\t\t\u003cimg decoding=\"async\" src=\"https://whiteknight.academy/wp-content/plugins/tutor/assets/images/empty-cart.svg\" alt=\"Empty shopping cart\" /\u003e\u003c/p\u003e\n\u003cp\u003eNo courses in the cart\u003c/p\u003e\n\u003cp\u003e\t\t\t\t\t\u003ca href=\"https://whiteknight.academy/courses/\" class=\"tutor-btn tutor-btn-lg tutor-btn-primary\"\u003eContinue Browsing\u003c/a\u003e\n\t\t\t\t\u003c/div\u003e\n\u003c/p\u003e\u003c/div\u003e\n\u003c/p\u003e\u003c/div\u003e\n\u003c/div\u003e\n",
+    "link":  "https://whiteknight.academy/course-cart/",
+    "date":  "2025-08-18T13:04:57",
+    "modified":  "2025-08-19T07:42:38",
+    "status":  "publish",
+    "title":  "Course Cart"
+}
