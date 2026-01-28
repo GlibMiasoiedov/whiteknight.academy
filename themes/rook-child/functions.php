@@ -4,68 +4,55 @@
  */
 
 /**
- * FIX: wp.i18n polyfill with debug logging for Tutor LMS
- * This creates wp.i18n early in wp_head before any other scripts run
+ * FIX: wp.i18n polyfill - runs at the VERY TOP of head and protects itself
+ * Uses priority 0 to run before any other scripts
  */
 add_action('wp_head', function () {
     ?>
     <script>
-        (function () {
-            console.log('[WK Debug] wp.i18n polyfill starting...');
-            console.log('[WK Debug] Current window.wp:', typeof window.wp, window.wp);
-            console.log('[WK Debug] Current window.wp.i18n:', typeof window.wp?.i18n, window.wp?.i18n);
+    (function() {
+        // Create protected wp.i18n that cannot be overwritten
+        var i18nPolyfill = {
+            __: function(text) { return text; },
+            _x: function(text) { return text; },
+            _n: function(s, p, n) { return n === 1 ? s : p; },
+            _nx: function(s, p, n) { return n === 1 ? s : p; },
+            sprintf: function() {
+                var args = [].slice.call(arguments);
+                var fmt = args.shift() || '';
+                return fmt.replace(/%[sd]/g, function() { return args.shift() || ''; });
+            },
+            setLocaleData: function() {},
+            getLocaleData: function() { return {}; },
+            hasTranslation: function() { return false; },
+            isRTL: function() { return false; }
+        };
 
-            // Ensure wp object exists
-            window.wp = window.wp || {};
-
-            // Check if i18n already exists and is valid
-            if (window.wp.i18n && typeof window.wp.i18n.__ === 'function') {
-                console.log('[WK Debug] wp.i18n already exists and is valid, skipping polyfill');
-                return;
-            }
-
-            console.log('[WK Debug] Creating wp.i18n polyfill...');
-
-            // Create polyfill
-            window.wp.i18n = {
-                __: function (text, domain) {
-                    return text;
-                },
-                _x: function (text, context, domain) {
-                    return text;
-                },
-                _n: function (single, plural, number, domain) {
-                    return number === 1 ? single : plural;
-                },
-                _nx: function (single, plural, number, context, domain) {
-                    return number === 1 ? single : plural;
-                },
-                isRTL: function () {
-                    return false;
-                },
-                sprintf: function () {
-                    var args = Array.prototype.slice.call(arguments);
-                    var format = args.shift();
-                    return format.replace(/%s/g, function () {
-                        return args.shift() || '';
-                    });
-                },
-                setLocaleData: function () { },
-                getLocaleData: function () { return {}; },
-                hasTranslation: function () { return false; }
-            };
-
-            console.log('[WK Debug] wp.i18n polyfill created successfully');
-            console.log('[WK Debug] Verification - wp.i18n.__:', typeof window.wp.i18n.__);
-        })();
+        // Ensure wp exists
+        window.wp = window.wp || {};
+        
+        // Set i18n if not exists
+        if (!window.wp.i18n || typeof window.wp.i18n.__ !== 'function') {
+            window.wp.i18n = i18nPolyfill;
+            console.log('[WK] wp.i18n polyfill installed');
+        }
+        
+        // Also set it to undefined-proof global for destructuring
+        // This handles cases like: const { __ } = wp.i18n;
+        Object.defineProperty(window, '__wpI18nPolyfill', {
+            value: i18nPolyfill,
+            writable: false,
+            configurable: false
+        });
+    })();
     </script>
     <?php
-}, 1); // Priority 1 = run very early in wp_head
+}, 0); // Priority 0 = absolute first
 
-// Also try to enqueue the real wp-i18n script
+// Force wp-i18n script with high priority dependency
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_script('wp-i18n');
-}, 1);
+}, 0);
 
 /**
  * Redirect Tutor "plain" URLs (/?post_type=page&p=ID або ?page_id=ID)
