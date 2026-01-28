@@ -4,40 +4,117 @@
  */
 
 /**
- * FIX: Register a FAKE wp-i18n script that provides polyfill
- * This ensures wp.i18n is available BEFORE any scripts that depend on it
+ * Simple wp.i18n polyfill - does NOT deregister wp-i18n to avoid WooCommerce crash
  */
-add_action('init', function () {
-    // First, deregister the real wp-i18n if it exists
-    wp_deregister_script('wp-i18n');
+add_action('wp_head', function () {
+    echo '<script>
+(function(){
+    window.wp = window.wp || {};
+    window.wp.i18n = window.wp.i18n || {};
+    var p = {__:function(t){return t;},_x:function(t){return t;},_n:function(s,p,n){return n===1?s:p;},_nx:function(s,p,n){return n===1?s:p;},sprintf:function(){var a=[].slice.call(arguments);var f=a.shift()||"";return f.replace(/%[sd]/g,function(){return a.shift()||"";});},setLocaleData:function(){},getLocaleData:function(){return {};},hasTranslation:function(){return false;},isRTL:function(){return false;}};
+    for(var k in p){if(!window.wp.i18n[k])window.wp.i18n[k]=p[k];}
+})();
+</script>';
+}, 1);
 
-    // Register our fake wp-i18n with inline polyfill
-    wp_register_script('wp-i18n', false, array(), false, false);
-
-    // Add inline script that creates the polyfill
-    wp_add_inline_script('wp-i18n', '
-        (function() {
-            window.wp = window.wp || {};
-            if (window.wp.i18n && typeof window.wp.i18n.__ === "function") return;
-            window.wp.i18n = {
-                __: function(t) { return t; },
-                _x: function(t) { return t; },
-                _n: function(s, p, n) { return n === 1 ? s : p; },
-                _nx: function(s, p, n) { return n === 1 ? s : p; },
-                sprintf: function() {
-                    var a = [].slice.call(arguments);
-                    var f = a.shift() || "";
-                    return f.replace(/%[sd]/g, function() { return a.shift() || ""; });
-                },
-                setLocaleData: function() {},
-                getLocaleData: function() { return {}; },
-                hasTranslation: function() { return false; },
-                isRTL: function() { return false; }
+/**
+ * Subscription Buy Now Button Workaround
+ * Intercepts clicks on subscription buttons and redirects to checkout
+ */
+add_action('wp_footer', function () {
+    // Only on single course pages
+    if (!function_exists('tutor_utils') || !is_singular('courses')) {
+        return;
+    }
+    ?>
+    <script>
+    (function() {
+        document.addEventListener("DOMContentLoaded", function() {
+            // Find subscription Buy Now buttons
+            var checkAndFix = function() {
+                var buyButtons = document.querySelectorAll(".tutor-subscription-buy-btn, .tutor-btn-subscription, a.tutor-btn[href='#'], button.tutor-btn-primary");
+                
+                buyButtons.forEach(function(btn) {
+                    // Skip if already processed
+                    if (btn.dataset.wkFixed) return;
+                    btn.dataset.wkFixed = "1";
+                    
+                    btn.addEventListener("click", function(e) {
+                        // Get selected plan
+                        var selectedPlan = document.querySelector("input[name='tutor_subscription_plan']:checked, input[name='plan']:checked, .tutor-subscription-plan.active input, .tutor-plan-item.selected input");
+                        var planId = selectedPlan ? selectedPlan.value : null;
+                        
+                        // Try to get plan from data attribute
+                        if (!planId) {
+                            var planItem = document.querySelector(".tutor-subscription-plan.tutor-is-active, .tutor-plan-item.active, .subscription-plan-item.selected");
+                            if (planItem) {
+                                planId = planItem.dataset.planId || planItem.dataset.id;
+                            }
+                        }
+                        
+                        // Get course ID from URL or page
+                        var courseId = null;
+                        var courseIdInput = document.querySelector("input[name='course_id'], input[name='tutor_course_id']");
+                        if (courseIdInput) {
+                            courseId = courseIdInput.value;
+                        }
+                        
+                        // Try getting from data attribute on wrapper
+                        if (!courseId) {
+                            var courseWrapper = document.querySelector("[data-course-id], [data-course_id]");
+                            if (courseWrapper) {
+                                courseId = courseWrapper.dataset.courseId || courseWrapper.dataset.course_id;
+                            }
+                        }
+                        
+                        // Try getting from tutor_utils if available
+                        if (!courseId && window._tutorobject && window._tutorobject.course_id) {
+                            courseId = window._tutorobject.course_id;
+                        }
+                        
+                        // Build checkout URL
+                        if (planId && courseId) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            var checkoutUrl = "/checkout/?plan=" + planId + "&course_id=" + courseId;
+                            console.log("[WK] Subscription redirect:", checkoutUrl);
+                            window.location.href = checkoutUrl;
+                            return false;
+                        }
+                        
+                        // Fallback: try Tutor checkout page with plan
+                        if (planId) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            var fallbackUrl = "/?post_type=page&p=4985&plan=" + planId;
+                            console.log("[WK] Subscription fallback redirect:", fallbackUrl);
+                            window.location.href = fallbackUrl;
+                            return false;
+                        }
+                        
+                        console.warn("[WK] Could not determine plan/course ID for subscription checkout");
+                    });
+                });
             };
-            console.log("[WK] wp.i18n polyfill loaded via fake wp-i18n script");
-        })();
-    ', 'before');
-}, 1); // Priority 1 = very early in init
+            
+            // Run immediately and after a delay (for dynamic content)
+            checkAndFix();
+            setTimeout(checkAndFix, 1000);
+            setTimeout(checkAndFix, 2000);
+            
+            // Watch for dynamic changes
+            var observer = new MutationObserver(function() {
+                checkAndFix();
+            });
+            var subscriptionWrap = document.querySelector(".tutor-course-subscription-wrap, .tutor-subscription-plans, .subscription-box");
+            if (subscriptionWrap) {
+                observer.observe(subscriptionWrap, { childList: true, subtree: true });
+            }
+        });
+    })();
+    </script>
+    <?php
+}, 999);
 
 /**
  * Redirect Tutor "plain" URLs (/?post_type=page&p=ID або ?page_id=ID)
