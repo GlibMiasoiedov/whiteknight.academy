@@ -18,98 +18,159 @@ add_action('wp_head', function () {
 }, 1);
 
 /**
- * Subscription Buy Now Button Workaround
- * Intercepts clicks on subscription buttons and redirects to checkout
+ * Subscription Buy Now Button Workaround v2
+ * Gets plan IDs from database and injects into page
  */
 add_action('wp_footer', function () {
     // Only on single course pages
     if (!function_exists('tutor_utils') || !is_singular('courses')) {
         return;
     }
+    
+    global $wpdb, $post;
+    $course_id = $post->ID;
+    
+    // Get subscription plans for this course from database
+    $plans = $wpdb->get_results($wpdb->prepare("
+        SELECT sp.id, sp.plan_name, sp.regular_price, sp.recurring_interval
+        FROM {$wpdb->prefix}tutor_subscription_plans sp
+        LEFT JOIN {$wpdb->prefix}tutor_subscription_plan_items spi ON sp.id = spi.plan_id
+        WHERE (spi.object_id = %d AND spi.object_name = 'course')
+           OR (sp.plan_type = 'course' AND sp.id IN (
+               SELECT plan_id FROM {$wpdb->prefix}tutor_subscription_plan_items WHERE object_id = %d
+           ))
+        ORDER BY sp.plan_order ASC, sp.id ASC
+    ", $course_id, $course_id));
+    
+    // If no direct course plans, try to get category-based plans
+    if (empty($plans)) {
+        $plans = $wpdb->get_results("
+            SELECT sp.id, sp.plan_name, sp.regular_price, sp.recurring_interval
+            FROM {$wpdb->prefix}tutor_subscription_plans sp
+            WHERE sp.is_enabled = 1
+            ORDER BY sp.plan_order ASC, sp.id ASC
+        ");
+    }
+    
+    $plans_json = json_encode(array_map(function($p) {
+        return [
+            'id' => (int)$p->id,
+            'name' => $p->plan_name,
+            'price' => $p->regular_price,
+            'interval' => $p->recurring_interval
+        ];
+    }, $plans));
     ?>
     <script>
     (function() {
+        var WK_COURSE_ID = <?php echo (int)$course_id; ?>;
+        var WK_PLANS = <?php echo $plans_json; ?>;
+        var WK_CHECKOUT_PAGE = 4985; // Tutor Checkout page ID
+        
+        console.log("[WK] Subscription workaround v2 loaded", {courseId: WK_COURSE_ID, plans: WK_PLANS});
+        
         document.addEventListener("DOMContentLoaded", function() {
-            // Find subscription Buy Now buttons
             var checkAndFix = function() {
-                var buyButtons = document.querySelectorAll(".tutor-subscription-buy-btn, .tutor-btn-subscription, a.tutor-btn[href='#'], button.tutor-btn-primary");
+                // Find ALL buttons that might be Buy Now
+                var buyButtons = document.querySelectorAll(
+                    ".tutor-subscription-buy-btn, " +
+                    ".tutor-btn-subscription, " + 
+                    "a.tutor-btn[href='#'], " +
+                    "a.tutor-btn-primary[href='#'], " +
+                    ".tutor-course-purchase-box a.tutor-btn, " +
+                    ".subscription-box button, " +
+                    ".subscription-box a.tutor-btn"
+                );
                 
                 buyButtons.forEach(function(btn) {
-                    // Skip if already processed
                     if (btn.dataset.wkFixed) return;
                     btn.dataset.wkFixed = "1";
                     
                     btn.addEventListener("click", function(e) {
-                        // Get selected plan
-                        var selectedPlan = document.querySelector("input[name='tutor_subscription_plan']:checked, input[name='plan']:checked, .tutor-subscription-plan.active input, .tutor-plan-item.selected input");
-                        var planId = selectedPlan ? selectedPlan.value : null;
+                        // Method 1: Find checked radio button
+                        var selectedRadio = document.querySelector(
+                            "input[type='radio'][name*='plan']:checked, " +
+                            "input[type='radio'][name*='subscription']:checked, " +
+                            ".tutor-form-check-input:checked"
+                        );
                         
-                        // Try to get plan from data attribute
-                        if (!planId) {
-                            var planItem = document.querySelector(".tutor-subscription-plan.tutor-is-active, .tutor-plan-item.active, .subscription-plan-item.selected");
-                            if (planItem) {
-                                planId = planItem.dataset.planId || planItem.dataset.id;
+                        var planId = null;
+                        var planIndex = -1;
+                        
+                        if (selectedRadio) {
+                            planId = selectedRadio.value;
+                            // If value is not a number, try to find index
+                            if (isNaN(parseInt(planId))) {
+                                planId = null;
+                                // Find which radio is selected (by index)
+                                var allRadios = document.querySelectorAll(
+                                    "input[type='radio'][name*='plan'], " +
+                                    "input[type='radio'][name*='subscription'], " +
+                                    ".tutor-form-check-input"
+                                );
+                                allRadios.forEach(function(r, i) {
+                                    if (r.checked) planIndex = i;
+                                });
                             }
                         }
                         
-                        // Get course ID from URL or page
-                        var courseId = null;
-                        var courseIdInput = document.querySelector("input[name='course_id'], input[name='tutor_course_id']");
-                        if (courseIdInput) {
-                            courseId = courseIdInput.value;
+                        // Method 2: Find selected plan item by class
+                        if (!planId && planIndex < 0) {
+                            var planItems = document.querySelectorAll(
+                                ".tutor-subscription-plan, " +
+                                ".subscription-plan-item, " +
+                                ".tutor-plan-selection-item"
+                            );
+                            planItems.forEach(function(item, i) {
+                                if (item.classList.contains("tutor-is-active") || 
+                                    item.classList.contains("active") ||
+                                    item.classList.contains("selected") ||
+                                    item.querySelector(":checked")) {
+                                    planIndex = i;
+                                    planId = item.dataset.planId || item.dataset.id;
+                                }
+                            });
                         }
                         
-                        // Try getting from data attribute on wrapper
-                        if (!courseId) {
-                            var courseWrapper = document.querySelector("[data-course-id], [data-course_id]");
-                            if (courseWrapper) {
-                                courseId = courseWrapper.dataset.courseId || courseWrapper.dataset.course_id;
-                            }
+                        // Method 3: Use plan index to get real ID from our mapping
+                        if (!planId && planIndex >= 0 && WK_PLANS[planIndex]) {
+                            planId = WK_PLANS[planIndex].id;
+                            console.log("[WK] Got plan ID from index mapping:", planIndex, "->", planId);
                         }
                         
-                        // Try getting from tutor_utils if available
-                        if (!courseId && window._tutorobject && window._tutorobject.course_id) {
-                            courseId = window._tutorobject.course_id;
+                        // Method 4: Default to first plan if only one exists
+                        if (!planId && WK_PLANS.length === 1) {
+                            planId = WK_PLANS[0].id;
+                            console.log("[WK] Only one plan, using:", planId);
                         }
                         
-                        // Build checkout URL
-                        if (planId && courseId) {
+                        // Method 5: If still no plan but we have plans, use first one
+                        if (!planId && WK_PLANS.length > 0) {
+                            planId = WK_PLANS[0].id;
+                            console.log("[WK] Fallback to first plan:", planId);
+                        }
+                        
+                        if (planId) {
                             e.preventDefault();
                             e.stopPropagation();
-                            var checkoutUrl = "/checkout/?plan=" + planId + "&course_id=" + courseId;
-                            console.log("[WK] Subscription redirect:", checkoutUrl);
+                            // Use Tutor's checkout page
+                            var checkoutUrl = "/?post_type=page&p=" + WK_CHECKOUT_PAGE + 
+                                              "&plan=" + planId + 
+                                              "&course_id=" + WK_COURSE_ID;
+                            console.log("[WK] Redirecting to checkout:", checkoutUrl);
                             window.location.href = checkoutUrl;
                             return false;
                         }
                         
-                        // Fallback: try Tutor checkout page with plan
-                        if (planId) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            var fallbackUrl = "/?post_type=page&p=4985&plan=" + planId;
-                            console.log("[WK] Subscription fallback redirect:", fallbackUrl);
-                            window.location.href = fallbackUrl;
-                            return false;
-                        }
-                        
-                        console.warn("[WK] Could not determine plan/course ID for subscription checkout");
+                        console.warn("[WK] Could not determine plan ID. Plans:", WK_PLANS);
                     });
                 });
             };
             
-            // Run immediately and after a delay (for dynamic content)
             checkAndFix();
-            setTimeout(checkAndFix, 1000);
-            setTimeout(checkAndFix, 2000);
-            
-            // Watch for dynamic changes
-            var observer = new MutationObserver(function() {
-                checkAndFix();
-            });
-            var subscriptionWrap = document.querySelector(".tutor-course-subscription-wrap, .tutor-subscription-plans, .subscription-box");
-            if (subscriptionWrap) {
-                observer.observe(subscriptionWrap, { childList: true, subtree: true });
-            }
+            setTimeout(checkAndFix, 500);
+            setTimeout(checkAndFix, 1500);
+            setTimeout(checkAndFix, 3000);
         });
     })();
     </script>
