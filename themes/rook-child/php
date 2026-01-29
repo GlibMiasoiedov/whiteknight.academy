@@ -4,26 +4,19 @@
  */
 
 /**
- * Simple wp.i18n polyfill - does NOT deregister wp-i18n to avoid WooCommerce crash
+ * FIX: Force load wp-i18n on frontend for Tutor LMS
+ * Without this, Tutor LMS JS fails with "Cannot destructure property '__' of 'wp.i18n'"
  */
-add_action('wp_head', function () {
-    echo '<script>
-(function(){
-    window.wp = window.wp || {};
-    window.wp.i18n = window.wp.i18n || {};
-    var p = {__:function(t){return t;},_x:function(t){return t;},_n:function(s,p,n){return n===1?s:p;},_nx:function(s,p,n){return n===1?s:p;},sprintf:function(){var a=[].slice.call(arguments);var f=a.shift()||"";return f.replace(/%[sd]/g,function(){return a.shift()||"";});},setLocaleData:function(){},getLocaleData:function(){return {};},hasTranslation:function(){return false;},isRTL:function(){return false;}};
-    for(var k in p){if(!window.wp.i18n[k])window.wp.i18n[k]=p[k];}
-})();
-</script>';
-}, 1);
+add_action('wp_enqueue_scripts', function() {
+    wp_enqueue_script('wp-i18n');
+}, 1); // Priority 1 = load very early
 
 /**
  * Redirect Tutor "plain" URLs (/?post_type=page&p=ID або ?page_id=ID)
  * на нормальні пермалінки Tutor-сторінок + зберегти query args (order_id, plan, course_id, ...)
  */
 add_action('template_redirect', function () {
-    if (is_admin())
-        return;
+    if (is_admin()) return;
 
     // Усі сервісні сторінки Tutor LMS з твого списку
     $tutor_page_ids = [7699, 4979, 4981, 4980, 4984, 4985, 4438, 6270];
@@ -53,14 +46,11 @@ add_action('template_redirect', function () {
     // Переносимо ВСІ query params, крім службових, що визначали "plain url"
     $args = [];
     foreach ($_GET as $k => $v) {
-        if (in_array($k, ['post_type', 'p', 'page_id'], true))
-            continue;
-        if ($v === '' || $v === null)
-            continue;
+        if (in_array($k, ['post_type', 'p', 'page_id'], true)) continue;
+        if ($v === '' || $v === null) continue;
 
         // якщо раптом прилетів масив — беремо перше значення
-        if (is_array($v))
-            $v = reset($v);
+        if (is_array($v)) $v = reset($v);
 
         $args[sanitize_key($k)] = sanitize_text_field(wp_unslash($v));
     }
