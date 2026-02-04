@@ -123,4 +123,9 @@ add_action('user_register', function ($user_id) {
     }
 }, 999);
 
-
+/**
+ * Mastodon Verification
+ */
+add_action('wp_head', function () {
+    echo '<link rel="me" href="https://mastodon.social/@whiteknightacademy" />';
+});
