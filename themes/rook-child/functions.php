@@ -5,18 +5,14 @@
 
 /**
  * Redirect Tutor LMS plain URLs to pretty permalinks
- * Preserves ALL query parameters (plan, course_id, etc.)
- * Runs early to avoid 404 from security plugins/WAF
  */
 add_action('init', function () {
-    // Only handle plain URL format
     if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'page' || !isset($_GET['p'])) {
         return;
     }
 
     $page_id = (int) $_GET['p'];
 
-    // Only redirect Tutor LMS system pages
     $tutor_pages = [
         4985, // Checkout
         4984, // Cart
@@ -31,92 +27,69 @@ add_action('init', function () {
         return;
     }
 
-    // Get the permalink
     $permalink = get_permalink($page_id);
     if (!$permalink) {
         return;
     }
 
-    // Collect ALL query params except the ones we're replacing
     $params = [];
     foreach ($_GET as $key => $value) {
         if (in_array($key, ['post_type', 'p', 'page_id'], true)) {
             continue;
         }
-        // Preserve the exact value
         $params[$key] = $value;
     }
 
-    // Build redirect URL with all params
     $redirect_url = $permalink;
     if (!empty($params)) {
         $redirect_url = add_query_arg($params, $permalink);
     }
 
-    // Redirect with 302 to preserve params in browser
     wp_safe_redirect($redirect_url, 302);
     exit;
 }, 1);
 
 /**
  * Login Button Fallback Fix
- * If the Tutor LMS login modal is missing, redirect to dashboard login
  */
 add_action('wp_footer', function () {
-    // Run on all pages where Tutor login might be needed, not just checkout
     ?>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.body.addEventListener('click', function (e) {
                 var target = e.target;
-                // Walk up to find button
                 while (target && target !== document.body) {
                     if (target.classList.contains('tutor-open-login-modal') ||
                         target.innerText.trim().toLowerCase() === 'login') {
-
-                        // Check if modal exists
                         var modal = document.querySelector('.tutor-login-modal, #tutor-login-modal');
-
-                        // If modal is missing or hidden/broken
                         if (!modal || modal.innerHTML.trim() === '') {
-                            console.log('[WK-LOGIN-FIX] Modal missing. Redirecting to login page.');
                             e.preventDefault();
                             e.stopImmediatePropagation();
-
-                            // Construct redirect URL
                             var currentUrl = encodeURIComponent(window.location.href);
                             var loginUrl = '/dashboard/?redirect_to=' + currentUrl;
-
-                            // Check if button has a specific URL
                             if (target.dataset.loginUrl && target.dataset.loginUrl.length > 1) {
                                 loginUrl = target.dataset.loginUrl;
                             }
-
                             window.location.href = loginUrl;
                             return false;
                         }
                     }
                     target = target.parentElement;
                 }
-            }, true); // Capture phase to run before Tutor events
+            }, true);
         });
     </script>
     <?php
 });
 
 /**
- * Redirect after Registration (Student & Instructor)
- * Redirects to /check-your-email/ instead of staying on the form
+ * Redirect after Registration
  */
 add_action('user_register', function ($user_id) {
-    // Ensure we only redirect during frontend registration submissions
     if (empty($_POST['tutor_action'])) {
         return;
     }
-
     $action = $_POST['tutor_action'];
-
-    // Check for Student or Instructor registration actions
     if ($action === 'tutor_register_student' || $action === 'tutor_register_instructor') {
         wp_safe_redirect(home_url('/check-your-email/'));
         exit;
@@ -129,3 +102,51 @@ add_action('user_register', function ($user_id) {
 add_action('wp_head', function () {
     echo '<link rel="me" href="https://mastodon.social/@whiteknightacademy" />';
 });
+
+/**
+ * Font Loading Optimization
+ */
+add_action('wp_head', function () {
+    $fonts = [
+        '/wp-content/plugins/tutor/assets/fonts/tutor.woff',
+        '/wp-content/plugins/tutor/assets/fonts/tutor-v2.woff',
+    ];
+
+    foreach ($fonts as $font) {
+        echo '<link rel="preload" href="' . esc_url(home_url($font)) . '" as="font" type="font/woff" crossorigin>' . "\n";
+    }
+    ?>
+    <style id="wk-font-display-fix">
+        @font-face {
+            font-family: tutor;
+            src: url(/wp-content/plugins/tutor/assets/fonts/tutor.woff) format("woff");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: tutor;
+            src: url(/wp-content/plugins/tutor/assets/fonts/tutor-v2.woff) format("woff");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+    <?php
+}, 1);
+/**
+ * Preload Hero Image for LCP optimization
+ */
+add_action('wp_head', function () {
+    // Only on homepage
+    if (!is_front_page()) {
+        return;
+    }
+    ?>
+    <link rel="preload" 
+          href="<?php echo esc_url(home_url('/wp-content/uploads/2026/02/Ponomariov_Team_2.webp')); ?>" 
+          as="image" 
+          type="image/webp"
+          fetchpriority="high">
+    <?php
+}, 1);
