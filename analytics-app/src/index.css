@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/* 
+  Fonts are now imported via @fontsource in main.tsx 
+  to ensure correct weight loading and no CDN delays.
+*/
+
+/* Default font */
+body {
+  font-family: 'Manrope', sans-serif;
+  @apply bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white;
+}
+
+.font-display {
+  font-family: 'Unbounded', sans-serif;
+  /* Ensure browser doesn't synthesize bold if not available */
+  font-synthesis: none;
+}
+
+.font-body {
+  font-family: 'Manrope', sans-serif;
+  font-synthesis: none;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
