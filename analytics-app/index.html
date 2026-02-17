@@ -3,13 +3,29 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>White Knight Analytics</title>
 </head>
 
 <body>
   <div id="root"></div>
+  <script>
+    // EMERGENCY SERVICE WORKER KILLER
+    // This runs before the main app to ensure no stale SW intercepts requests
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          console.warn('Unregistering Service Worker:', registration);
+          registration.unregister();
+        }
+        if (registrations.length > 0) {
+          console.warn('Reloading to apply SW removal...');
+          window.location.reload();
+        }
+      });
+    }
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

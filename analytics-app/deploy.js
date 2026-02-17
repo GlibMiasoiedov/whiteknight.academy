@@ -1,5 +1,6 @@
 import * as ftp from 'basic-ftp';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,12 +30,39 @@ async function deploy() {
 
         console.log(`Clearing remote directory: ${REMOTE_ROOT}`);
         await client.ensureDir(REMOTE_ROOT);
-        await client.clearWorkingDir(); // Careful! This deletes everything in the remote dir.
+        // await client.clearWorkingDir(); // DISABLED: Keep old files to prevent "White Screen" for cached users
 
         const localDist = path.join(__dirname, 'dist');
+        const distIndex = path.join(localDist, 'index.html');
+        const distApp = path.join(localDist, 'app.html');
+        if (fs.existsSync(distIndex)) {
+            console.log('Renaming index.html to app.html for cache busting...');
+            fs.renameSync(distIndex, distApp);
+        }
+
+        // Explicitly remove old index.html from remote to force DirectoryIndex to pick up app.html
+        try {
+            console.log('Removing old remote index.html...');
+            await client.remove(REMOTE_ROOT + '/index.html');
+        } catch (e) {
+            console.log('Old index.html not found or could not be deleted (non-fatal).');
+        }
+
         console.log(`Uploading local '${localDist}' to '${REMOTE_ROOT}'...`);
 
         await client.uploadFromDir(localDist, REMOTE_ROOT);
+
+        // CREATE CACHE BUSTER COPY
+        // Copy app.html (which was index.html) to v162.html
+        console.log("Creating v162.html alias for cache busting...");
+        try {
+            // Fix Windows path issue: explicit forward slashes for FTP
+            const v162Path = REMOTE_ROOT + '/v162.html';
+            console.log(`Uploading to: ${v162Path}`);
+            await client.uploadFrom(distApp, v162Path);
+        } catch (e) {
+            console.error("Failed to create alias:", e);
+        }
 
         console.log('Deployment Complete! 🚀');
         console.log('Visit: https://analytics.whiteknight.academy');

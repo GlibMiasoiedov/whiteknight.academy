@@ -7,8 +7,8 @@ export const THEMES = {
 };
 
 export const FONTS = {
-    h1: 'font-display text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white',
-    h2: 'font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-white',
+    h1: 'font-display text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white',
+    h2: 'font-display text-2xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-white',
     label: 'font-body text-sm font-bold text-slate-400 uppercase tracking-wider',
     body: 'font-body text-lg md:text-xl font-medium text-slate-400 leading-relaxed',
     kpi: 'font-display text-4xl md:text-6xl font-extrabold tracking-tight text-white',

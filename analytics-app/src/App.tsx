@@ -1,16 +1,44 @@
-
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/pages/LandingPage';
-import DashboardLayout from './DashboardLayout';
-import CheckoutPage from './components/pages/CheckoutPage';
+
+const DashboardLayout = lazy(() => import('./DashboardLayout'));
+const CheckoutPage = lazy(() => import('./components/pages/CheckoutPage'));
+
+import ErrorBoundary from './components/ui/ErrorBoundary';
+
+const PaymentSuccessPage = lazy(() => import('./components/pages/PaymentSuccessPage'));
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/dashboard" element={<DashboardLayout />} />
+        <Route path="/" element={
+          <ErrorBoundary>
+            <LandingPage />
+          </ErrorBoundary>
+        } />
+        <Route path="/checkout" element={
+          <Suspense fallback={<div className="min-h-screen bg-[#080C14]" />}>
+            <CheckoutPage />
+          </Suspense>
+        } />
+        <Route path="/payment-success" element={
+          <Suspense fallback={<div className="min-h-screen bg-[#080C14]" />}>
+            <PaymentSuccessPage />
+          </Suspense>
+        } />
+        <Route path="/dashboard" element={
+          <Suspense fallback={<div className="min-h-screen bg-[#080C14]" />}>
+            <DashboardLayout />
+          </Suspense>
+        } />
+        {/* Catch-all for 404s and cache-busting filenames like v162.html */}
+        <Route path="*" element={
+          <ErrorBoundary>
+            <LandingPage />
+          </ErrorBoundary>
+        } />
       </Routes>
     </Router>
   );
