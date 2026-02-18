@@ -35,7 +35,7 @@ const MobileGate: React.FC = () => {
                 Desktop Required
             </h1>
             <p className="font-body text-sm text-slate-400 max-w-sm mb-8 leading-relaxed">
-                White Knight Analytics is optimised for desktop and laptop screens.
+                Chess Analytics is optimised for desktop and laptop screens.
                 Please switch to a computer for the best experience.
             </p>
 

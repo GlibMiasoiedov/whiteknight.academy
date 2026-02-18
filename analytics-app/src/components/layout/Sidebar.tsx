@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     LayoutDashboard, FileText, Users, Grid,
-    Brain, BookOpen, Command, Lock, Settings, CreditCard, Shield, LogOut, ChevronDown
+    Brain, BookOpen, Lock, Settings, CreditCard, Shield, LogOut, ChevronDown
 } from 'lucide-react';
 import Badge from '../ui/Badge';
 import { DASHBOARD_FONTS } from '../../constants/theme';
@@ -33,12 +33,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, userM
     return (
         <div className="fixed top-0 left-0 h-screen w-[220px] xl:w-[260px] border-r border-white/5 flex flex-col justify-between z-30 bg-[#080C14]">
             <div>
-                <div className="h-16 xl:h-20 flex items-center px-4 xl:px-6 gap-2 xl:gap-3">
-                    <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <Command size={16} className="text-white xl:hidden" />
-                        <Command size={18} className="text-white hidden xl:block" />
-                    </div>
-                    <span className={DASHBOARD_FONTS.logo}>White Knight Analytics</span>
+                <div className="h-16 xl:h-20 flex items-center px-4 xl:px-6 gap-3">
+                    <img src="/logo.svg" alt="Chess Analytics" className="w-8 h-8 block" />
+                    <span className={DASHBOARD_FONTS.logo}>Chess Analytics</span>
                 </div>
 
                 <nav className="px-2 xl:px-3 space-y-0.5 xl:space-y-1 mt-4 xl:mt-6">
