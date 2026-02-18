@@ -34,7 +34,7 @@ const App = () => {
             <WizardPage />
           </Suspense>
         } />
-        <Route path="/dashboard" element={
+        <Route path="/dashboard/*" element={
           <Suspense fallback={<div className="min-h-screen bg-[#080C14]" />}>
             <DashboardLayout />
           </Suspense>

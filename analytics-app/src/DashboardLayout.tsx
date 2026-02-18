@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import RightPanel from './components/layout/RightPanel';
 import CenterColumn from './components/layout/CenterColumn';
@@ -10,15 +10,29 @@ import { THEMES } from './constants/theme';
 import OnboardingWizard from './components/onboarding/OnboardingWizard';
 import DevToolbar from './components/dev/DevToolbar';
 import ConnectModals from './components/shared/ConnectModals';
+import MobileGate from './components/shared/MobileGate';
 
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 
 const DashboardLayout = () => {
     // Router Params (e.g. ?wizard=true)
     const [searchParams, setSearchParams] = useSearchParams();
     const showWizardFromUrl = searchParams.get('wizard') === 'true';
 
-    const [activeTab, setActiveTab] = useState('home');
+    // URL-based routing
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Derive activeTab from URL path: /dashboard/report → 'report', /dashboard → 'home'
+    const pathSegment = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
+    const TAB_MAP: Record<string, string> = { '': 'home', 'report': 'report', 'coaching': 'coaching', 'apps': 'integrations', 'ai-coach': 'ai-coach', 'opening-lab': 'openings' };
+    const activeTab = TAB_MAP[pathSegment] || 'home';
+
+    const setActiveTab = useCallback((tab: string) => {
+        const REVERSE_MAP: Record<string, string> = { 'home': '', 'report': 'report', 'coaching': 'coaching', 'integrations': 'apps', 'ai-coach': 'ai-coach', 'openings': 'opening-lab' };
+        const path = REVERSE_MAP[tab] || '';
+        navigate(`/dashboard${path ? `/${path}` : ''}`);
+    }, [navigate]);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [proModalOpen, setProModalOpen] = useState(false);
     const [manualInputsConfig, setManualInputsConfig] = useState<{ isOpen: boolean; canSkip: boolean }>({ isOpen: false, canSkip: false });
@@ -38,6 +52,7 @@ const DashboardLayout = () => {
     // Checklist State
     const [isMatchSettingsSet, setMatchSettingsSet] = useState(false);
     const [hasJoinedCoaching, setHasJoinedCoaching] = useState(false);
+    const [pgnUploaded, setPgnUploaded] = useState(false);
 
     const currentTheme = THEMES[activeTab as keyof typeof THEMES] || THEMES.home;
     const toggleConnection = (key: string) => {
@@ -62,7 +77,8 @@ const DashboardLayout = () => {
 
     const handleJoinCoaching = () => {
         setHasJoinedCoaching(true);
-        alert("You have joined the class! (Demo)");
+        // Open the coaching preferences / match settings modal
+        setManualInputsConfig({ isOpen: true, canSkip: true });
     };
     const closeWizard = () => {
         setShowWizard(false);
@@ -76,11 +92,15 @@ const DashboardLayout = () => {
 
     return (
         <div className="flex min-h-screen font-sans bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white relative">
+            <MobileGate />
             <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.8 - 2026-02-15T22:27:00.000Z</div>
             <DevToolbar
                 setConnections={setConnections}
                 setDemoMode={setDemoMode}
                 setShowWizard={setShowWizard}
+                isDemoMode={isDemoMode}
+                connections={connections}
+                setPgnUploaded={setPgnUploaded}
             />
             <OnboardingWizard
                 isOpen={showWizard}
@@ -114,6 +134,7 @@ const DashboardLayout = () => {
                 userMenuOpen={userMenuOpen}
                 setUserMenuOpen={setUserMenuOpen}
                 onUpgradeClick={() => setProModalOpen(true)}
+                isDemoMode={isDemoMode}
             />
 
             <main className="flex-1 w-full relative">
@@ -124,7 +145,6 @@ const DashboardLayout = () => {
                     activeTab={activeTab}
                     onUpgradeClick={() => setProModalOpen(true)}
                     isDemoMode={isDemoMode}
-                    setDemoMode={setDemoMode}
                     openManualInputs={(canSkip = false) => setManualInputsConfig({ isOpen: true, canSkip })}
                     onNavigate={setActiveTab}
                     openModal={setActiveModal}
@@ -148,6 +168,8 @@ const DashboardLayout = () => {
                 isMatchSettingsSet={isMatchSettingsSet}
                 hasJoinedCoaching={hasJoinedCoaching}
                 onJoinCoaching={handleJoinCoaching}
+                pgnUploaded={pgnUploaded}
+                setPgnUploaded={setPgnUploaded}
             />
         </div>
     );

@@ -68,7 +68,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
         const stepsData = [
             { id: 1, label: "Path Selection", status: path ? 'done' : 'pending', val: path === 'new' ? 'Beginner' : path === 'connect' ? 'Data Import' : '-' },
             { id: 2, label: "Data & Profile", status: (path === 'connect' && Object.values(connections).some(Boolean)) || (path === 'new' && knowsPieces !== null) ? 'done' : 'pending', val: path === 'connect' ? `${Object.values(connections).filter(Boolean).length} Connected` : path === 'new' ? (knowsPieces ? 'Knows Pieces' : 'Learning') : '-' },
-            { id: 3, label: "Match Settings", status: preferences.goals.length > 0 ? 'done' : 'pending', val: preferences.level },
+            { id: 3, label: "Coaching Preferences", status: preferences.goals.length > 0 ? 'done' : 'pending', val: preferences.level },
             { id: 4, label: "Review", status: step === 4 ? 'done' : 'pending', val: '-' }
         ];
 
@@ -241,20 +241,13 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                             <p className="text-[10px] text-slate-400 mt-1">From File</p>
                         </Card>
 
-                        {/* Master DB */}
-                        <Card className={`relative text-center p-4 cursor-pointer transition-all ${connections.masterDb ? 'border-amber-500/50 bg-amber-500/5' : 'hover:border-amber-500/50 border-amber-500/10'}`} onClick={() => !connections.masterDb && setActiveModal('masterDb')}>
-                            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-600 rounded-xl flex items-center justify-center text-white mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                        {/* Master DB — In Development */}
+                        <Card className="relative text-center p-4 opacity-60 border-dashed border-white/10">
+                            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-600 rounded-xl flex items-center justify-center text-white mx-auto mb-3 shadow-lg">
                                 <MasterDBLogo size={20} variant="glyph" />
                             </div>
                             <h3 className="text-white font-bold text-sm mb-1">Masters DB</h3>
-                            {connections.masterDb ? (
-                                <div className="mt-2">
-                                    <div className="text-amber-400 text-[10px] font-bold flex justify-center items-end gap-1 mb-2"><CheckCircle size={10} /> Connected</div>
-                                    <Button size="xs" variant="secondary" fullWidth onClick={(e: React.MouseEvent) => { e.stopPropagation(); toggleConnection('masterDb'); }}>Disconnect</Button>
-                                </div>
-                            ) : (
-                                <p className="text-[9px] text-slate-400 mt-1 leading-tight">Magnus, Hikaru, etc.</p>
-                            )}
+                            <p className="text-[9px] text-slate-500 mt-1 leading-tight">In Development</p>
                         </Card>
                     </div>
 
