@@ -25,15 +25,15 @@ const FAQSection = () => {
                         <div
                             key={i}
                             onClick={() => toggle(i)}
-                            className={`border border-white/10 rounded-3xl p-8 transition-all cursor-pointer group ${openIndex === i ? 'bg-white/10 border-white/20' : 'hover:bg-white/5 hover:border-white/20 bg-black/20'}`}
+                            className={`border border-white/10 rounded-2xl md:rounded-3xl p-5 md:p-8 transition-all cursor-pointer group ${openIndex === i ? 'bg-white/10 border-white/20' : 'hover:bg-white/5 hover:border-white/20 bg-black/20'}`}
                         >
                             <div className="flex flex-col gap-4">
                                 <div className="flex justify-between items-center">
-                                    <h3 className={`font-bold text-white text-xl ${FONTS.h2} !text-xl`}>{item.q}</h3>
+                                    <h3 className={`font-bold text-white text-base md:text-xl ${FONTS.h2} !text-base md:!text-xl`}>{item.q}</h3>
                                     <ChevronDown size={24} className={`text-slate-500 group-hover:text-white transition-transform duration-300 ${openIndex === i ? 'rotate-180 text-white' : ''}`} />
                                 </div>
                                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <p className="text-slate-400 text-lg leading-relaxed pt-2">{item.a}</p>
+                                    <p className="text-slate-400 text-base md:text-lg leading-relaxed pt-2">{item.a}</p>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Settings } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
+
 interface DevToolbarProps {
     setConnections: (conns: { chessCom: boolean; lichess: boolean; masterDb: boolean }) => void;
     setDemoMode: (mode: boolean) => void;
@@ -8,6 +10,7 @@ interface DevToolbarProps {
 }
 
 const DevToolbar: React.FC<DevToolbarProps> = ({ setConnections, setDemoMode, setShowWizard }) => {
+    const navigate = useNavigate();
     // Only show in dev/preview environments (optional safeguard)
     // if (process.env.NODE_ENV === 'production') return null; 
 
@@ -15,9 +18,7 @@ const DevToolbar: React.FC<DevToolbarProps> = ({ setConnections, setDemoMode, se
         const state = e.target.value;
         switch (state) {
             case 'wizard':
-                setShowWizard(true);
-                setConnections({ chessCom: false, lichess: false, masterDb: false });
-                setDemoMode(false);
+                navigate('/wizard');
                 break;
             case 'empty':
                 setShowWizard(false);

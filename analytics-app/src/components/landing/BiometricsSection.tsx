@@ -11,7 +11,7 @@ const BiometricsSection = ({ onRegister }: { onRegister?: () => void }) => {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-600/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none" />
 
-            <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 xl:px-24 relative z-10">
 
                 {/* Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16 md:mb-24">
@@ -20,7 +20,7 @@ const BiometricsSection = ({ onRegister }: { onRegister?: () => void }) => {
                         <span className={`text-xs font-bold text-rose-400 uppercase tracking-wider ${FONTS.label}`}>IN DEVELOPMENT · BIOMETRICS</span>
                     </div>
 
-                    <h2 className={`${FONTS.h2} text-white mb-6 md:text-5xl lg:text-6xl`}>
+                    <h2 className={`${FONTS.h2} text-white mb-6 md:text-5xl lg:text-5xl xl:text-6xl`}>
                         Measure How Stress <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-orange-400">Affects Your Chess</span>
                     </h2>
@@ -30,7 +30,7 @@ const BiometricsSection = ({ onRegister }: { onRegister?: () => void }) => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 xl:gap-20 items-center">
 
                     {/* LEFT: Cards */}
                     <div className="space-y-6">
@@ -75,7 +75,7 @@ const BiometricsSection = ({ onRegister }: { onRegister?: () => void }) => {
                     </div>
 
                     {/* RIGHT: Visualization */}
-                    <div className="relative">
+                    <div className="relative hidden md:block">
                         <GlassCard className="p-8 relative overflow-hidden">
                             <div className="flex justify-between items-center mb-8">
                                 <div className="flex items-center gap-3">
@@ -163,10 +163,10 @@ const BiometricsSection = ({ onRegister }: { onRegister?: () => void }) => {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <button onClick={onRegister} className="px-8 py-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-lg shadow-lg shadow-rose-600/20 transition-all hover:-translate-y-1 w-full sm:w-auto">
+                        <button onClick={onRegister} className="px-8 py-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-lg shadow-lg shadow-rose-600/20 transition-all hover:-translate-y-1 w-full sm:w-auto btn-premium">
                             Join Biometrics Early Access
                         </button>
-                        <button onClick={onRegister} className="px-8 py-4 rounded-full bg-transparent border border-white/10 hover:bg-white/5 text-white font-bold text-lg transition-all w-full sm:w-auto flex items-center justify-center gap-2">
+                        <button onClick={onRegister} className="px-8 py-4 rounded-full bg-transparent border border-white/10 hover:bg-white/5 text-white font-bold text-lg transition-all w-full sm:w-auto flex items-center justify-center gap-2 btn-premium">
                             Get Your Free Starter Report <ChevronRight size={18} />
                         </button>
                     </div>

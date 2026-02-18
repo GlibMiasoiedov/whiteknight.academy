@@ -13,22 +13,26 @@ export interface StatType {
     };
 }
 
+export interface StatRoseChartProps {
+    activeSlice: string | null;
+    hoveredSlice: string | null;
+    onHover: (id: string | null) => void;
+    onClick: (id: string) => void;
+    stats: StatType[];
+    idPrefix?: string;
+}
+
 const StatRoseChart = ({
     activeSlice,
     hoveredSlice,
     onHover,
     onClick,
-    stats
-}: {
-    activeSlice: string | null,
-    hoveredSlice: string | null,
-    onHover: (id: string | null) => void,
-    onClick: (id: string) => void,
-    stats: StatType[]
-}) => {
+    stats,
+    idPrefix = ''
+}: StatRoseChartProps) => {
     const size = 650;
     const center = size / 2;
-    const maxRadius = 250; // Increased radius for better visibility
+    const maxRadius = 200; // Decreased radius to prevent label overflow on mobile
     const sliceAngle = 360 / stats.length;
     const depth = 20;
 
@@ -43,7 +47,8 @@ const StatRoseChart = ({
     return (
         <div className="relative w-full h-full flex items-center justify-center select-none group perspective-1000">
             {/* Background Glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/10 via-transparent to-transparent rounded-full blur-[80px] pointer-events-none" />
+            {/* Background Glow - Removed to prevent hard edge artifact */}
+            {/* <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/10 via-transparent to-transparent rounded-full blur-[80px] pointer-events-none" /> */}
 
             <div className="relative w-full max-w-[750px] aspect-square transition-transform duration-500 md:hover:scale-[1.02]">
                 <svg
@@ -53,17 +58,27 @@ const StatRoseChart = ({
                 >
                     <defs>
                         {stats.map((stat) => (
-                            <linearGradient key={`grad-${stat.id}`} id={`grad-${stat.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient key={`grad-${stat.id}`} id={`${idPrefix}grad-${stat.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stopColor={stat.gradientFrom} />
                                 <stop offset="100%" stopColor={stat.gradientTo} />
                             </linearGradient>
                         ))}
                         {stats.map((stat) => (
-                            <linearGradient key={`dark-${stat.id}`} id={`dark-${stat.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                            <linearGradient key={`dark-${stat.id}`} id={`${idPrefix}dark-${stat.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" stopColor={stat.gradientTo} stopOpacity="0.8" />
                                 <stop offset="100%" stopColor="#000" stopOpacity="0.4" />
                             </linearGradient>
                         ))}
+                        {stats.map((stat) => (
+                            <radialGradient id={`${idPrefix}gradient-${stat.id}`} key={`radial-${stat.id}`} cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 0) rotate(90) scale(400)">
+                                <stop offset="0%" stopColor={stat.gradientFrom} stopOpacity="0.8" />
+                                <stop offset="100%" stopColor={stat.gradientTo} stopOpacity="0.2" />
+                            </radialGradient>
+                        ))}
+                        {/* Shadow Pattern */}
+                        <pattern id={`${idPrefix}pattern-circles`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="1" cy="1" r="1" className="text-white/10" fill="currentColor" />
+                        </pattern>
                     </defs>
 
                     {/* Grid Lines */}
@@ -104,12 +119,12 @@ const StatRoseChart = ({
                                 {/* 3D Thickness */}
                                 <path
                                     d={`M ${p2.x} ${p2.y} L ${p3.x} ${p3.y} L ${p3_depth.x} ${p3_depth.y} L ${p2_depth.x} ${p2_depth.y} Z`}
-                                    fill={`url(#dark-${stat.id})`} stroke="none"
+                                    fill={`url(#${idPrefix}dark-${stat.id})`} stroke="none"
                                 />
                                 {/* Top Face */}
                                 <path
                                     d={`M ${center} ${center} L ${p2.x} ${p2.y} A ${radius} ${radius} 0 0 1 ${p3.x} ${p3.y} Z`}
-                                    fill={`url(#grad-${stat.id})`}
+                                    fill={`url(#${idPrefix}grad-${stat.id})`}
                                     stroke="rgba(255,255,255,0.2)"
                                     strokeWidth={isActive ? 2 : 1}
                                     className="transition-opacity duration-300"
@@ -122,7 +137,7 @@ const StatRoseChart = ({
                     {/* Labels */}
                     {stats.map((stat, i) => {
                         const angle = i * sliceAngle + sliceAngle / 2;
-                        const labelRadius = maxRadius + 45; // Pushed out further
+                        const labelRadius = maxRadius + 30; // Closer labels
                         const pos = getCoordinatesForAngle(angle, labelRadius);
 
                         const isActive = activeSlice === stat.id;

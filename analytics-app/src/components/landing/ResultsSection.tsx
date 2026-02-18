@@ -6,7 +6,7 @@ import GlassCard from '../ui/GlassCard';
 const ResultsSection = () => {
     return (
         <section id="results" className="py-16 md:py-32 relative z-10">
-            <div className="w-full px-6 md:px-12 lg:px-24">
+            <div className="w-full px-6 md:px-12 lg:px-16 xl:px-24 text-center">
                 <h2 className={`${FONTS.h1} text-center text-white mb-6 md:mb-16`}>Real Results</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">

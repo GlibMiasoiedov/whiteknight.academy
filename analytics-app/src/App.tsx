@@ -8,6 +8,7 @@ const CheckoutPage = lazy(() => import('./components/pages/CheckoutPage'));
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 const PaymentSuccessPage = lazy(() => import('./components/pages/PaymentSuccessPage'));
+const WizardPage = lazy(() => import('./components/pages/WizardPage'));
 
 const App = () => {
   return (
@@ -26,6 +27,11 @@ const App = () => {
         <Route path="/payment-success" element={
           <Suspense fallback={<div className="min-h-screen bg-[#080C14]" />}>
             <PaymentSuccessPage />
+          </Suspense>
+        } />
+        <Route path="/wizard" element={
+          <Suspense fallback={<div className="min-h-screen bg-[#080C14]" />}>
+            <WizardPage />
           </Suspense>
         } />
         <Route path="/dashboard" element={

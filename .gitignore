@@ -13,3 +13,7 @@ Thumbs.db
 
 # Download script (not needed in repo)
 download-themes.ps1
+
+# Server-side PHP with secrets
+analytics-app/public/create-payment-intent.php
+analytics-app/public/create-stripe-session.php

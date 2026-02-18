@@ -39,8 +39,8 @@ const OpponentAnalysisSection = ({ onRegister }: { onRegister: () => void }) => 
 
     return (
         <section id="opponent-prep" className="py-16 md:py-20 relative z-10">
-            <div className="w-full px-6 md:px-12 lg:px-24">
-                <div className="flex flex-col md:flex-row items-start gap-10 md:gap-24">
+            <div className="w-full px-6 md:px-12 lg:px-16 xl:px-24">
+                <div className="flex flex-col md:flex-row items-start gap-10 md:gap-12 lg:gap-16 xl:gap-24">
                     {/* LEFT: New Opponent Analysis Card */}
                     <div className="flex-1 relative w-full flex justify-center order-2 md:order-1">
                         <GlassCard className="p-0 bg-gradient-to-br from-[#0F1623] to-[#0B1221] border-white/10 w-full max-w-[600px] overflow-hidden">
@@ -196,14 +196,14 @@ const OpponentAnalysisSection = ({ onRegister }: { onRegister: () => void }) => 
                             Don't play blind. Know exactly what they play — and how to beat it.
                         </div>
 
-                        <p className={`text-lg md:text-2xl text-slate-400 mb-6 md:mb-8 ${FONTS.body}`}>
+                        <p className={`text-lg lg:text-xl xl:text-2xl text-slate-400 mb-6 md:mb-8 ${FONTS.body}`}>
                             Preparing for a specific player? Enter their username. We scan their games, find their most common openings, and generate a <b>Cheat Sheet</b> with the top 3 lines you need to review.
                         </p>
 
                         <ul className="space-y-4 mb-10">
-                            {['Compare key metrics side by side', 'See opening tendencies by color', 'Get practical prep notes and traps to watch'].map(item => (<li key={item} className="flex items-center gap-4 text-white text-lg font-medium"><CheckCircle size={24} className="text-amber-500 flex-shrink-0" /> {item}</li>))}
+                            {['Compare key metrics side by side', 'See opening tendencies by color', 'Get practical prep notes and traps to watch'].map(item => (<li key={item} className="flex items-center gap-4 text-white text-lg lg:text-base xl:text-lg font-medium"><CheckCircle size={24} className="text-amber-500 flex-shrink-0" /> {item}</li>))}
                         </ul>
-                        <button onClick={onRegister} className={`bg-amber-500 text-slate-900 px-8 py-4 rounded-full text-lg font-bold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 ${FONTS.body}`}>Join the Waitlist</button>
+                        <button onClick={onRegister} className={`bg-amber-500 text-slate-900 px-8 py-4 rounded-full text-lg font-bold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 btn-premium ${FONTS.body}`}>Join the Waitlist</button>
                         <p className="text-slate-500 text-sm font-medium mt-3">Pro members get early access first.</p>
                     </div>
                 </div>

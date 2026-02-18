@@ -97,20 +97,34 @@ const VisualizationSection = () => {
 
     return (
         <section id="analytics" className="py-16 md:py-20 relative z-10 overflow-hidden">
-            <div className="w-full px-6 md:px-12 lg:px-24">
-                <div className="flex flex-col-reverse lg:flex-row items-center gap-6 lg:gap-24">
+            <div className="w-full px-6 md:px-12 lg:px-16 xl:px-24">
+                <div className="flex flex-col-reverse lg:flex-row items-center gap-6 lg:gap-12 xl:gap-24">
                     {/* LEFT CONTENT (Text) */}
                     <div className="flex-1 w-full">
-                        <div className={`inline-block px-5 py-2.5 rounded-full bg-white/5 border border-white/10 shadow-sm text-base font-bold text-white mb-8 backdrop-blur-md ${FONTS.label}`}>VISUAL LEARNING</div>
-
-                        <h2 className={`${FONTS.h1} text-white mb-8 leading-tight`}>
+                        {/* 1. H2 (First on mobile) */}
+                        <h2 className={`text-2xl md:text-3xl lg:text-5xl font-display font-bold text-white mb-6 md:mb-8 leading-[1.1] whitespace-pre-wrap`}>
                             See Your Game<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Spot Your Leaks</span><br />
-                            Fix Them Faster
+                            <span className="md:inline lg:block">Fix Them Faster</span>
                         </h2>
 
-                        {/* Dynamic Insight Box - Fixed height to prevent jumping */}
-                        <div className="min-h-[180px] md:min-h-[200px] mb-8 md:mb-12 relative flex flex-col justify-center">
+                        {/* 2. Label (Second on mobile) */}
+                        <div className={`inline-block px-5 py-2.5 rounded-full bg-white/5 border border-white/10 shadow-sm text-base font-bold text-white mb-8 backdrop-blur-md ${FONTS.label}`}>VISUAL LEARNING</div>
+
+                        {/* 3. CHART (Mobile Only - moved here) */}
+                        <div className="block lg:hidden w-full h-[300px] flex items-center justify-center mb-8 relative">
+                            <StatRoseChart
+                                activeSlice={activeSlice}
+                                hoveredSlice={hoveredSlice}
+                                onHover={setHoveredSlice}
+                                onClick={handleSliceClick}
+                                stats={stats}
+                                idPrefix="mobile-"
+                            />
+                        </div>
+
+                        {/* 4. Dynamic Insight Box (Fourth on mobile) */}
+                        <div className="min-h-[180px] md:min-h-[200px] lg:min-h-[180px] mb-8 lg:mb-12 relative flex flex-col justify-center">
                             {activeStat ? (
                                 <div className="animate-fade-in p-6 rounded-2xl bg-white/5 border border-white/10 border-l-4 shadow-2xl" style={{ borderLeftColor: activeStat.gradientFrom }}>
                                     <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
@@ -139,29 +153,32 @@ const VisualizationSection = () => {
                             )}
                         </div>
 
-                        <div className="flex gap-6 md:gap-12">
+                        {/* 5. Stats Boxes (Fifth) */}
+                        <div className="flex gap-6 xl:gap-12">
                             <div>
-                                <div className="text-3xl font-bold text-white mb-2 font-display flex items-center gap-2">
+                                <div className="text-3xl lg:text-2xl xl:text-3xl font-bold text-white mb-2 font-display flex items-center gap-2">
                                     <TrendingUp className="text-emerald-400" /> Track
                                 </div>
                                 <div className={`text-base text-slate-500 ${FONTS.label}`}>rating trend and form</div>
                             </div>
                             <div>
-                                <div className="text-3xl font-bold text-white mb-2 font-display flex items-center gap-2">
+                                <div className="text-3xl lg:text-2xl xl:text-3xl font-bold text-white mb-2 font-display flex items-center gap-2">
                                     <Target className="text-indigo-400" /> Measure
                                 </div>
                                 <div className={`text-base text-slate-500 ${FONTS.label}`}>accuracy by phase and theme</div>
                             </div>
                         </div>
+
+                        {/* 6. CTA (Sixth) */}
                         <div className="mt-12">
-                            <button onClick={() => navigate('/checkout')} className={`px-10 py-4 rounded-full bg-white text-slate-900 font-bold text-lg shadow-lg hover:bg-slate-100 transition-all hover:-translate-y-1 ${FONTS.body}`}>
+                            <button onClick={() => navigate('/checkout')} className={`px-10 py-4 rounded-full bg-white text-slate-900 font-bold text-lg shadow-lg hover:bg-slate-100 transition-all hover:-translate-y-1 btn-premium ${FONTS.body}`}>
                                 Start 14-Day Free Trial
                             </button>
                         </div>
                     </div>
 
-                    {/* RIGHT CHART */}
-                    <div className="flex-1 relative w-full h-[350px] md:h-[700px] flex items-center justify-center">
+                    {/* RIGHT CHART (Desktop Only) */}
+                    <div className="hidden lg:flex flex-1 relative w-full h-[350px] lg:h-[600px] xl:h-[700px] items-center justify-center overflow-hidden">
                         {/* <div className="absolute inset-0 bg-gradient-to-b from-violet-600/5 to-transparent rounded-full blur-3xl" /> */}
                         <StatRoseChart
                             activeSlice={activeSlice}

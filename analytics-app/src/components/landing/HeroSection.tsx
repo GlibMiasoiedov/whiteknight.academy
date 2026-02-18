@@ -8,39 +8,39 @@ const HeroSection = () => {
     const navigate = useNavigate();
     return (
 
-        <section id="top" className="relative min-h-[85vh] md:min-h-[95vh] flex items-center pt-24 md:pt-32 overflow-hidden">
+        <section id="top" className="relative min-h-[85vh] md:min-h-[95vh] flex items-center pt-32 md:pt-32 overflow-hidden">
             {/* Background Elements */}
             <div className="absolute inset-0 bg-[#080C14]">
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-900/20 via-[#080C14] to-[#080C14]" />
                 <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-violet-600/10 to-transparent opacity-30" />
             </div>
 
-            <div className="w-full px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 relative z-10 items-center">
+            <div className="w-full px-6 md:px-12 lg:px-16 xl:px-24 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-20 relative z-10 items-center">
                 <div className="flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-8 animate-fade-in">
+                    <div className="flex items-center gap-3 mb-8 animate-fade-in mt-8 md:mt-0">
                         <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md">
                             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             <span className={`text-xs md:text-sm font-bold text-emerald-400 uppercase tracking-wider ${FONTS.label}`}>ENGINE INSIGHTS — COACH-READY</span>
                         </div>
                     </div>
-                    <h1 className={`${FONTS.h1.replace('lg:text-7xl', 'lg:text-6xl')} text-white leading-[1.05] mb-8 drop-shadow-2xl`}>
-                        Turn Chess Games
-                        <span className="block">Into a Coach-Ready</span>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 animate-gradient-x block">Improvement Plan</span>
+                    <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-3xl xl:text-5xl font-bold tracking-tight text-white leading-[1.1] mb-6 md:mb-8 whitespace-pre-wrap">
+                        Turn Chess Games<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400">Into a Coach-Ready</span><br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400">Improvement Plan</span>
                     </h1>
 
-                    <p className={`text-base md:text-2xl text-slate-300 mb-6 md:mb-8 max-w-2xl ${FONTS.body} leading-relaxed`}>
+                    <p className={`text-base lg:text-xl xl:text-2xl text-slate-300 mb-6 md:mb-8 max-w-2xl ${FONTS.body} leading-relaxed`}>
                         Connect your Chess.com or Lichess account — or upload a PGN file. We analyze your real games, reveal your recurring patterns, and turn them into a coach-ready plan you can act on.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                        <button onClick={() => navigate('/checkout')} className={`w-full sm:w-auto px-10 py-4 md:py-5 rounded-full bg-white text-slate-900 font-bold text-lg md:text-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 group`}>
+                        <button onClick={() => navigate('/checkout')} className={`w-full sm:w-auto px-6 xl:px-10 py-4 xl:py-5 rounded-full bg-white text-slate-900 font-bold text-lg xl:text-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 group whitespace-nowrap btn-premium`}>
                             Start 14-Day Free Trial
                             <ArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </button>
-                        <button className={`w-full sm:w-auto px-10 py-4 md:py-5 rounded-full bg-white/5 border border-white/10 text-white font-bold text-lg md:text-xl hover:bg-white/10 transition-all flex items-center justify-center gap-3 backdrop-blur-md`}>
+                        <button className={`w-full sm:w-auto px-6 xl:px-10 py-4 xl:py-5 rounded-full bg-white/5 border border-white/10 text-white font-bold text-lg xl:text-xl hover:bg-white/10 transition-all flex items-center justify-center gap-3 backdrop-blur-md whitespace-nowrap btn-premium`}>
                             <PlayCircle size={24} />
-                            Watch 60-sec Demo
+                            Watch Demo
                         </button>
                     </div>
                     <div className="hidden lg:flex flex-col gap-2 mt-4">
@@ -59,11 +59,69 @@ const HeroSection = () => {
                     </div>
                 </div>
 
-                {/* Floating 3D Element */}
-                <div className="relative h-[800px] hidden lg:flex items-center justify-center perspective-1000 w-full pointer-events-none">
+                {/* Mobile Sample Report Preview - Detailed */}
+                <div className="block lg:hidden w-full mt-4">
+                    <GlassCard className="w-full p-5 bg-[#0F1623]/90 border-white/10 relative overflow-hidden">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 p-[2px]">
+                                    <div className="w-full h-full rounded-full bg-[#0F1623] flex items-center justify-center text-sm font-bold text-white">JD</div>
+                                </div>
+                                <div>
+                                    <div className="text-white font-bold text-base">John Doe</div>
+                                    <div className="text-xs text-slate-400">Rapid 1450</div>
+                                </div>
+                            </div>
+                            <div className="text-emerald-400 font-bold text-sm bg-emerald-500/10 px-3 py-1 rounded border border-emerald-500/20 flex items-center gap-1">
+                                <TrendingUp size={14} /> +12
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Biggest Leak */}
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/5 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent pointer-events-none" />
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">Biggest Leak</div>
+                                    <span className="text-red-400 font-bold text-[10px] bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 uppercase">Critical</span>
+                                </div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="text-white font-bold text-xl">Endgame</div>
+                                    <div className="text-slate-400 text-xs">Low Conversion</div>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="w-[35%] h-full bg-red-500 rounded-full" />
+                                </div>
+                            </div>
+
+                            {/* Coach Match */}
+                            <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent pointer-events-none" />
+                                <div className="flex justify-between items-center mb-3">
+                                    <div className="text-emerald-400 font-bold text-xs uppercase tracking-wider">Coach Match</div>
+                                    <div className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">MATCH</div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 font-bold text-xs">GM</div>
+                                    <div className="flex-1">
+                                        <div className="text-white font-bold text-base">GM Alex Smith</div>
+                                        <div className="text-xs text-slate-400">Endgame Specialist</div>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                        <Check size={16} className="text-[#0F1623] stroke-[3px]" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </GlassCard>
+                </div>
+
+                {/* Floating 3D Element (Desktop Only) */}
+                <div className="relative h-[600px] xl:h-[800px] hidden lg:flex items-center justify-center perspective-1000 w-full pointer-events-none">
                     <div className="relative w-full h-full flex items-center justify-center">
 
-                        <GlassCard className="w-[85%] max-w-[480px] p-8 z-20 animate-float-slow bg-[#0F1623]/90 border-white/10 pointer-events-auto shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden relative">
+                        <GlassCard className="w-[85%] max-w-[400px] xl:max-w-[480px] p-6 xl:p-8 z-20 animate-float-slow bg-[#0F1623]/90 border-white/10 pointer-events-auto shadow-[0_30px_80px_rgba(0,0,0,0.6)] backdrop-blur-2xl overflow-hidden relative">
                             {/* Knight Watermark */}
                             <div className="absolute -bottom-20 -right-20 text-[400px] text-white opacity-[0.05] transform rotate-12 pointer-events-none select-none font-serif leading-none z-0">
                                 ♞
@@ -71,13 +129,13 @@ const HeroSection = () => {
 
                             <div className="relative z-10">
                                 {/* Header */}
-                                <div className="flex justify-between items-center mb-8">
+                                <div className="flex justify-between items-center mb-5 xl:mb-8">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 p-[3px]">
+                                        <div className="w-14 h-14 xl:w-16 xl:h-16 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 p-[3px]">
                                             <div className="w-full h-full rounded-full bg-[#0F1623] flex items-center justify-center text-lg font-bold text-white">JD</div>
                                         </div>
                                         <div>
-                                            <div className={`text-2xl font-bold text-white ${FONTS.h2} !text-2xl`}>John Doe</div>
+                                            <h2 className={`text-xl xl:text-2xl font-bold text-white ${FONTS.h2} !text-xl xl:!text-2xl`}>John Doe</h2>
                                             <div className={`text-lg text-slate-400 ${FONTS.body}`}>Rapid 1450</div>
                                         </div>
                                     </div>
@@ -86,14 +144,14 @@ const HeroSection = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-5">
+                                <div className="space-y-3 xl:space-y-5">
                                     {/* 1. Biggest Leak */}
-                                    <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/5 relative overflow-hidden group">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="p-4 xl:p-6 rounded-[1.5rem] bg-white/5 border border-white/5 relative overflow-hidden hero-card">
+                                        <div className="hero-card-glow absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent" />
                                         <div className="relative z-10">
                                             <div className={`text-slate-500 mb-2 ${FONTS.label}`}>Biggest Leak</div>
                                             <div className="flex flex-wrap justify-between items-end gap-3 mb-3">
-                                                <span className={`text-white font-bold text-3xl ${FONTS.h2} !text-3xl`}>Endgame</span>
+                                                <span className={`text-white font-bold text-2xl xl:text-3xl ${FONTS.h2} !text-2xl xl:!text-3xl`}>Endgame</span>
                                                 <span className="text-red-400 font-bold text-xs bg-red-500/10 px-3 py-1 rounded-lg border border-red-500/20 uppercase tracking-wide">Critical</span>
                                             </div>
                                             <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
@@ -103,11 +161,11 @@ const HeroSection = () => {
                                     </div>
 
                                     {/* 2. Opening Accuracy */}
-                                    <div className="p-6 rounded-[1.5rem] bg-amber-500/5 backdrop-blur-sm border border-amber-500/20 flex items-center justify-between relative overflow-hidden group shadow-[0_0_30px_rgba(245,158,11,0.1)]">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="p-4 xl:p-6 rounded-[1.5rem] bg-amber-500/5 backdrop-blur-sm border border-amber-500/20 flex items-center justify-between relative overflow-hidden hero-card shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+                                        <div className="hero-card-glow absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent" />
                                         <div className="relative z-10">
                                             <div className={`text-slate-500 mb-1 ${FONTS.label}`}>Opening Accuracy</div>
-                                            <div className={`text-5xl font-bold text-white ${FONTS.kpi}`}>67%</div>
+                                            <div className={`text-4xl xl:text-5xl font-bold text-white ${FONTS.kpi}`}>67%</div>
                                             <div className="text-xs text-slate-400 mt-1 font-medium">Win Rate</div>
                                         </div>
                                         <div className="text-right relative z-10">
@@ -119,8 +177,8 @@ const HeroSection = () => {
                                     </div>
 
                                     {/* 3. Coach Match */}
-                                    <div className="p-6 rounded-[1.5rem] bg-emerald-500/5 backdrop-blur-sm border border-emerald-500/20 relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-100 transition-opacity" />
+                                    <div className="p-4 xl:p-6 rounded-[1.5rem] bg-emerald-500/5 backdrop-blur-sm border border-emerald-500/20 relative overflow-hidden hero-card shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                                        <div className="hero-card-glow absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent" />
                                         <div className="relative z-10">
                                             <div className="flex justify-between items-center mb-3">
                                                 <div className={`text-emerald-400 font-bold ${FONTS.label}`}>Coach Match (Optional)</div>

@@ -35,3 +35,120 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 }
+
+/* Global Button Styles */
+button,
+.button {
+  cursor: pointer !important;
+}
+
+/* Premium Button Hover Effect */
+.btn-premium {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.btn-premium:hover {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ─── Glass Card Hover Animation ─── */
+.glass-card-hover {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card-hover:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+}
+
+.glass-card-hover .icon-box {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card-hover:hover .icon-box {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+/* ─── Chart Bar Hover Animation ─── */
+.chart-bar-group {
+  position: relative;
+  cursor: pointer;
+}
+
+.chart-bar-group .chart-bar {
+  transition: filter 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  transform-origin: bottom;
+}
+
+.chart-bar-group:hover .chart-bar {
+  filter: brightness(1.3);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.8);
+  transform: scaleY(1.05);
+}
+
+.chart-bar-group .chart-tooltip {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.chart-bar-group:hover .chart-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Footer Phone Animation ─── */
+.phone-area {
+  cursor: pointer;
+}
+
+.phone-area .phone-glow {
+  transition: transform 0.7s ease, opacity 0.7s ease;
+}
+
+.phone-area:hover .phone-glow {
+  transform: rotate(0deg) scale(1.05);
+  opacity: 0.8;
+}
+
+.phone-area .phone-mockup {
+  transition: transform 0.7s ease, box-shadow 0.7s ease;
+  transform: rotate(12deg) translateY(40px);
+}
+
+.phone-area:hover .phone-mockup {
+  transform: rotate(0deg) translateY(40px) scale(1.05);
+  box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
+}
+
+/* ─── Hero Report Card Hover Animation ─── */
+.hero-card {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-card:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+}
+
+.hero-card .hero-card-glow {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hero-card:hover .hero-card-glow {
+  opacity: 1;
+}
+
+/* ─── Pro Pricing Card Hover ─── */
+.pro-card-hover {
+  transition: box-shadow 0.4s ease, border-color 0.3s ease;
+}
+
+.pro-card-hover:hover {
+  box-shadow: 0 0 80px rgba(139, 92, 246, 0.35), 0 0 120px rgba(139, 92, 246, 0.15);
+}

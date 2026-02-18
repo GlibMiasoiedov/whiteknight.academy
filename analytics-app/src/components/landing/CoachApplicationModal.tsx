@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, Loader2, CheckCircle, ChevronDown } from 'lucide-react';
 
 const CoachApplicationModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
+
+
+    useEffect(() => {
+        if (isOpen) {
+            // Lock scroll
+            document.body.style.overflow = 'hidden';
+
+            // Push history state to support back button closing
+            window.history.pushState({ modalOpen: true }, '');
+
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') onClose();
+            };
+
+            const handlePopState = () => {
+                onClose();
+            };
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('popstate', handlePopState);
+
+            return () => {
+                document.body.style.overflow = 'unset';
+                window.removeEventListener('keydown', handleKeyDown);
+                window.removeEventListener('popstate', handlePopState);
+            };
+        }
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
@@ -37,9 +66,10 @@ const CoachApplicationModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080C14]/90 backdrop-blur-md overflow-y-auto">
-            <div className="bg-[#0F1623] border border-white/10 rounded-3xl w-full max-w-2xl p-8 md:p-10 relative shadow-2xl my-8 animate-fade-in ring-1 ring-white/5">
-                <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors"><X /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080C14]/90 backdrop-blur-md overflow-hidden">
+            {/* Added max-h and overflow-y-auto for mobile scrolling within the modal */}
+            <div className="bg-[#0F1623] border border-white/10 rounded-3xl w-full max-w-2xl p-6 md:p-10 relative shadow-2xl my-4 animate-fade-in ring-1 ring-white/5 max-h-[90vh] overflow-y-auto">
+                <button onClick={onClose} className="absolute top-4 right-4 md:top-6 md:right-6 text-slate-500 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors z-10"><X /></button>
 
                 <div className="mb-10 text-center">
                     <h3 className="text-3xl font-bold text-white mb-3">Apply as a Coach</h3>

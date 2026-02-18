@@ -54,10 +54,10 @@ const PaymentSuccessPage = () => {
                     </div>
 
                     <button
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => navigate('/wizard')}
                         className="w-full py-4 bg-white hover:bg-slate-100 text-[#05060B] rounded-xl font-bold text-lg shadow-lg shadow-white/10 transition-all hover:-translate-y-1 flex items-center justify-center gap-2 font-display"
                     >
-                        Go to Dashboard <ArrowRight className="w-5 h-5" />
+                        Go to Onboarding <ArrowRight className="w-5 h-5" />
                     </button>
 
                 </div>

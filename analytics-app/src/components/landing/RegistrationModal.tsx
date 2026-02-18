@@ -27,6 +27,31 @@ const RegistrationModal = ({ isOpen, onClose, onLoginSuccess, onSwitchToRegister
         }
     }, [isOpen, mode]);
 
+    // Scroll Lock & History Management
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            window.history.pushState({ modalOpen: true }, '');
+
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') onClose();
+            };
+
+            const handlePopState = () => {
+                onClose();
+            };
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('popstate', handlePopState);
+
+            return () => {
+                document.body.style.overflow = 'unset';
+                window.removeEventListener('keydown', handleKeyDown);
+                window.removeEventListener('popstate', handlePopState);
+            };
+        }
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const handleEmailSubmit = (e: React.FormEvent) => {
@@ -51,7 +76,15 @@ const RegistrationModal = ({ isOpen, onClose, onLoginSuccess, onSwitchToRegister
         setIsSubmitting(true);
         setTimeout(() => {
             setIsSubmitting(false);
-            onLoginSuccess();
+
+            // Redirection Logic based on Mode
+            if (mode === 'register') {
+                // Redirect to Wizard (Onboarding)
+                window.location.href = '/wizard';
+            } else {
+                // Redirect to Dashboard (via parent handler or direct)
+                onLoginSuccess();
+            }
         }, 1500);
     };
 
@@ -63,9 +96,9 @@ const RegistrationModal = ({ isOpen, onClose, onLoginSuccess, onSwitchToRegister
         : "Create an account to access your dashboard, insights, and optional coaching.";
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080C14]/90 backdrop-blur-md overflow-y-auto">
-            <div className="bg-[#0F1623] border border-white/10 rounded-3xl w-full max-w-md p-8 relative shadow-2xl my-8 ring-1 ring-white/5 animate-fade-in">
-                <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors"><X /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#080C14]/90 backdrop-blur-md overflow-hidden">
+            <div className="bg-[#0F1623] border border-white/10 rounded-3xl w-full max-w-md p-8 relative shadow-2xl my-4 ring-1 ring-white/5 animate-fade-in max-h-[90vh] overflow-y-auto">
+                <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors z-10"><X /></button>
 
                 <div className="mb-8 text-center">
                     <h3 className="text-3xl font-bold text-white mb-2">
