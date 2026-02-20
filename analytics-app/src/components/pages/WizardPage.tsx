@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OnboardingWizard from '../onboarding/OnboardingWizard';
 import ConnectModals from '../shared/ConnectModals';
+import MobileGate from '../shared/MobileGate';
 
 const WizardPage = () => {
     const navigate = useNavigate();
@@ -34,6 +35,7 @@ const WizardPage = () => {
 
     return (
         <div className="min-h-screen bg-[#080C14]">
+            <MobileGate />
             {/* We render the Wizard as if it's always open since this IS the wizard page */}
             <OnboardingWizard
                 isOpen={true}

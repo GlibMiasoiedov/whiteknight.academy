@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, X, Check, Trash2, Clock } from 'lucide-react';
 import Button from '../ui/Button';
 import { FONTS } from '../../constants/theme';
+import { TIMEZONES } from '../coaching/TimeZoneUtils';
 
 interface ManualInputsModalProps {
     isOpen: boolean;
@@ -9,6 +10,8 @@ interface ManualInputsModalProps {
     onSave?: () => void;
     canSkip?: boolean;
     theme: { color: string };
+    connections?: { chessCom: boolean; lichess: boolean; masterDb: boolean };
+    openConnectModal?: (platform: 'chessCom' | 'lichess' | 'masterDb') => void;
 }
 
 interface TimeSlot {
@@ -16,31 +19,20 @@ interface TimeSlot {
     time: string;
 }
 
-const TIMEZONES = [
-    { label: "Europe/Kyiv (GMT+2)", value: "Europe/Kyiv" },
-    { label: "Europe/Warsaw (GMT+1)", value: "Europe/Warsaw" },
-    { label: "Europe/London (GMT+0)", value: "Europe/London" },
-    { label: "Europe/Berlin (GMT+1)", value: "Europe/Berlin" },
-    { label: "Europe/Paris (GMT+1)", value: "Europe/Paris" },
-    { label: "US/Eastern (GMT-5)", value: "US/Eastern" },
-    { label: "US/Pacific (GMT-8)", value: "US/Pacific" },
-    { label: "US/Central (GMT-6)", value: "US/Central" },
-    { label: "Canada/Toronto (GMT-5)", value: "Canada/Toronto" },
-    { label: "Australia/Sydney (GMT+11)", value: "Australia/Sydney" },
-    { label: "UTC", value: "UTC" }
-];
+// TIMEZONES imported from TimeZoneUtils
 
 const LANGUAGES = ["English", "Ukrainian", "Polish", "Chinese", "Spanish", "French", "German"];
 
-const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, onSave, canSkip = false, theme }) => {
+const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, onSave, canSkip = false, theme, connections, openConnectModal }) => {
     const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
     const [coachingType, setCoachingType] = useState<'individual' | 'group'>('individual');
 
     // Form States
-    const [timezone, setTimezone] = useState(TIMEZONES[0].value);
+    const [timezone, setTimezone] = useState(TIMEZONES[12]?.value || 'Europe/Warsaw');
     const [primaryLang, setPrimaryLang] = useState("English");
     const [secondaryLang, setSecondaryLang] = useState("None");
     const [level, setLevel] = useState("Intermediate (800-1200)");
+    const [studentAge, setStudentAge] = useState('');
 
     // Availability
     const [availability, setAvailability] = useState<TimeSlot[]>([
@@ -93,10 +85,13 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
     const saveProfile = () => {
         // Here we would save to localStorage/Cookie
         const profile = {
-            timezone, primaryLang, secondaryLang, level, selectedGoals, availability, coachingType
+            timezone, primaryLang, secondaryLang, level, selectedGoals, availability, coachingType, studentAge,
+            chessComLinked: connections?.chessCom || false,
+            lichessLinked: connections?.lichess || false
         };
         localStorage.setItem('wk_coaching_profile', JSON.stringify(profile));
         if (onSave) onSave();
+        onClose();
     };
 
     return (
@@ -113,6 +108,15 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
                     {/* Section 1: Basic Info */}
                     <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className={FONTS.label}>Student Age <span className="text-red-400">*</span></label>
+                            <input
+                                type="number"
+                                value={studentAge} onChange={e => setStudentAge(e.target.value)}
+                                placeholder="Enter age"
+                                className="w-full bg-[#080C14] border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-violet-500"
+                            />
+                        </div>
                         <div className="space-y-2">
                             <label className={FONTS.label}>Timezone <span className="text-red-400">*</span></label>
                             <select
@@ -153,6 +157,21 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
                                 <option>None</option>
                                 {LANGUAGES.filter(l => l !== primaryLang).map(l => <option key={l} value={l}>{l}</option>)}
                             </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className={FONTS.label}>Connect Platforms</label>
+                            <div className="flex gap-2">
+                                <button onClick={() => openConnectModal?.('chessCom')}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.chessCom ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
+                                    <div className={`w-2 h-2 rounded-full ${connections?.chessCom ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                                    Chess.com
+                                </button>
+                                <button onClick={() => openConnectModal?.('lichess')}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.lichess ? 'bg-white/10 border-white/40 text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
+                                    <div className={`w-2 h-2 rounded-full ${connections?.lichess ? 'bg-white' : 'bg-slate-600'}`} />
+                                    Lichess
+                                </button>
+                            </div>
                         </div>
                     </div>
 

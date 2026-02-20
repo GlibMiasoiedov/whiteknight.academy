@@ -14,6 +14,8 @@ import MobileGate from './components/shared/MobileGate';
 
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 
+import StandardPlanPage from './components/coaching/StandardPlanPage';
+
 const DashboardLayout = () => {
     // Router Params (e.g. ?wizard=true)
     const [searchParams, setSearchParams] = useSearchParams();
@@ -24,9 +26,13 @@ const DashboardLayout = () => {
     const navigate = useNavigate();
 
     // Derive activeTab from URL path: /dashboard/report → 'report', /dashboard → 'home'
-    const pathSegment = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
+    const pathAfterDashboard = location.pathname.replace(/^\/dashboard\/?/, '');
+    const pathSegment = pathAfterDashboard.split('/')[0];
     const TAB_MAP: Record<string, string> = { '': 'home', 'report': 'report', 'coaching': 'coaching', 'apps': 'integrations', 'ai-coach': 'ai-coach', 'opening-lab': 'openings' };
     const activeTab = TAB_MAP[pathSegment] || 'home';
+
+    // Detect coaching sub-routes
+    const isEnrollPage = pathAfterDashboard === 'coaching/enroll';
 
     const setActiveTab = useCallback((tab: string) => {
         const REVERSE_MAP: Record<string, string> = { 'home': '', 'report': 'report', 'coaching': 'coaching', 'integrations': 'apps', 'ai-coach': 'ai-coach', 'openings': 'opening-lab' };
@@ -35,6 +41,9 @@ const DashboardLayout = () => {
     }, [navigate]);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [proModalOpen, setProModalOpen] = useState(false);
+
+
+
     const [manualInputsConfig, setManualInputsConfig] = useState<{ isOpen: boolean; canSkip: boolean }>({ isOpen: false, canSkip: false });
     const [connections, setConnections] = useState({ chessCom: false, lichess: false, masterDb: false });
     // Modal State
@@ -80,6 +89,11 @@ const DashboardLayout = () => {
         // Open the coaching preferences / match settings modal
         setManualInputsConfig({ isOpen: true, canSkip: true });
     };
+
+    const handleOpenBooking = () => {
+        navigate('/dashboard/coaching/enroll');
+    };
+
     const closeWizard = () => {
         setShowWizard(false);
         localStorage.setItem('wk_analytics_wizard_seen', 'true');
@@ -93,7 +107,7 @@ const DashboardLayout = () => {
     return (
         <div className="flex min-h-screen font-sans bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white relative">
             <MobileGate />
-            <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.8 - 2026-02-15T22:27:00.000Z</div>
+            <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.9.3 - 2026-02-19</div>
             <DevToolbar
                 setConnections={setConnections}
                 setDemoMode={setDemoMode}
@@ -119,12 +133,16 @@ const DashboardLayout = () => {
                 setUsernameInput={setUsernameInput}
             />
             <ProModal isOpen={proModalOpen} onClose={() => setProModalOpen(false)} />
+
+
             <ManualInputsModal
                 isOpen={manualInputsConfig.isOpen}
                 canSkip={manualInputsConfig.canSkip}
                 onClose={() => setManualInputsConfig(prev => ({ ...prev, isOpen: false }))}
                 onSave={handleSaveMatchSettings}
                 theme={currentTheme}
+                connections={connections}
+                openConnectModal={(platform) => setActiveModal(platform)}
             />
 
             <Sidebar
@@ -138,39 +156,51 @@ const DashboardLayout = () => {
             />
 
             <main className="flex-1 w-full relative">
-                <CenterColumn
-                    connections={connections}
-                    toggleConnection={(key: 'chessCom' | 'lichess' | 'masterDb') => toggleConnection(key)}
-                    theme={currentTheme}
-                    activeTab={activeTab}
-                    onUpgradeClick={() => setProModalOpen(true)}
-                    isDemoMode={isDemoMode}
-                    openManualInputs={(canSkip = false) => setManualInputsConfig({ isOpen: true, canSkip })}
-                    onNavigate={setActiveTab}
-                    openModal={setActiveModal}
-                    onJoinCoaching={handleJoinCoaching}
-                    isMatchSettingsSet={isMatchSettingsSet}
-                />
+                {isEnrollPage ? (
+                    <div className="pl-[240px] xl:pl-[290px] w-full transition-all duration-300">
+                        <StandardPlanPage
+                            onBack={() => navigate('/dashboard/coaching')}
+                            openManualInputs={() => setManualInputsConfig({ isOpen: true, canSkip: false })}
+                            connections={connections}
+                            openModal={setActiveModal}
+                        />
+                    </div>
+                ) : (
+                    <CenterColumn
+                        connections={connections}
+                        toggleConnection={(key: 'chessCom' | 'lichess' | 'masterDb') => toggleConnection(key)}
+                        theme={currentTheme}
+                        activeTab={activeTab}
+                        onUpgradeClick={() => setProModalOpen(true)}
+                        isDemoMode={isDemoMode}
+                        openManualInputs={(canSkip = false) => setManualInputsConfig({ isOpen: true, canSkip })}
+                        onNavigate={setActiveTab}
+                        openModal={setActiveModal}
+                        onJoinCoaching={handleJoinCoaching}
+                        isMatchSettingsSet={isMatchSettingsSet}
+                        onOpenBooking={handleOpenBooking}
+                    />
+                )}
             </main>
 
-            <RightPanel
-                connections={connections}
-                openManualInputs={(canSkip = false) => setManualInputsConfig({ isOpen: true, canSkip })}
-                theme={currentTheme}
-                onUpgradeClick={() => setProModalOpen(true)}
-                isDemoMode={isDemoMode}
-                setDemoMode={setDemoMode}
-                onNavigate={setActiveTab}
-                toggleConnection={toggleConnection}
-                openModal={setActiveModal}
-
-                // New Props
-                isMatchSettingsSet={isMatchSettingsSet}
-                hasJoinedCoaching={hasJoinedCoaching}
-                onJoinCoaching={handleJoinCoaching}
-                pgnUploaded={pgnUploaded}
-                setPgnUploaded={setPgnUploaded}
-            />
+            {!isEnrollPage && (
+                <RightPanel
+                    connections={connections}
+                    openManualInputs={(canSkip = false) => setManualInputsConfig({ isOpen: true, canSkip })}
+                    theme={currentTheme}
+                    onUpgradeClick={() => setProModalOpen(true)}
+                    isDemoMode={isDemoMode}
+                    setDemoMode={setDemoMode}
+                    onNavigate={setActiveTab}
+                    toggleConnection={toggleConnection}
+                    openModal={setActiveModal}
+                    isMatchSettingsSet={isMatchSettingsSet}
+                    hasJoinedCoaching={hasJoinedCoaching}
+                    onJoinCoaching={handleJoinCoaching}
+                    pgnUploaded={pgnUploaded}
+                    setPgnUploaded={setPgnUploaded}
+                />
+            )}
         </div>
     );
 };

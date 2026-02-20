@@ -22,7 +22,7 @@ body {
   font-synthesis: none;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — auto-hide, appears on hover */
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
@@ -32,8 +32,17 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0);
   border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 /* Global Button Styles */
@@ -151,4 +160,46 @@ button,
 
 .pro-card-hover:hover {
   box-shadow: 0 0 80px rgba(139, 92, 246, 0.35), 0 0 120px rgba(139, 92, 246, 0.15);
+}
+
+/* ─── Ultra Strong Hover Glows (v2.9.3 Fix) ─── */
+.hover-glow-amber-strong {
+  transition: all 0.3s ease;
+}
+
+.hover-glow-amber-strong:hover {
+  box-shadow: 0 0 35px rgba(245, 158, 11, 0.6) !important;
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.6) !important;
+}
+
+.hover-glow-violet-strong {
+  transition: all 0.3s ease;
+}
+
+.hover-glow-violet-strong:hover {
+  box-shadow: 0 0 35px rgba(139, 92, 246, 0.6) !important;
+  transform: translateY(-2px);
+  border-color: rgba(139, 92, 246, 0.6) !important;
+}
+
+.hover-glow-emerald-strong {
+  transition: all 0.3s ease;
+}
+
+.hover-glow-emerald-strong:hover {
+  box-shadow: 0 0 35px rgba(16, 185, 129, 0.6) !important;
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.6) !important;
+}
+
+.hover-glow-white-strong {
+  transition: all 0.3s ease;
+}
+
+.hover-glow-white-strong:hover {
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-2px);
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }

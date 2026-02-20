@@ -21,9 +21,10 @@ interface CenterColumnProps {
     openModal: (key: 'chessCom' | 'lichess' | 'masterDb') => void;
     onJoinCoaching: () => void;
     isMatchSettingsSet: boolean;
+    onOpenBooking: () => void;
 }
 
-const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet }) => {
+const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet, onOpenBooking }) => {
     // Determine if we show State B (Connected/Matched — has actual data)
     const isConnected = Object.values(connections).some(Boolean);
     const showStateB = isConnected || isMatchSettingsSet;
@@ -338,7 +339,7 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
                                         </div>
                                         <div className="font-bold text-white mb-1 group-hover:text-amber-400">{g.t}</div>
                                         <div className="text-xs text-slate-500 mb-4">{g.s} available</div>
-                                        <Button size="sm" variant="secondary" fullWidth onClick={g.s === 'Waitlist' ? onUpgradeClick : onJoinCoaching}>{g.s === 'Waitlist' ? 'Join Waitlist' : 'Join Class'}</Button>
+                                        <Button size="sm" variant="secondary" fullWidth onClick={g.s === 'Waitlist' ? onUpgradeClick : onOpenBooking}>{g.s === 'Waitlist' ? 'Join Waitlist' : 'Join Class'}</Button>
                                     </Card>
                                 ))}
                             </div>
@@ -496,7 +497,7 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
                             <div className="p-8 text-center border border-dashed border-white/10 rounded-xl">
                                 <Calendar size={32} className="text-slate-500 mx-auto mb-3" />
                                 <p className="text-slate-400 text-sm mb-4">No upcoming sessions scheduled.</p>
-                                <Button variant="secondary" size="sm">Browse Schedule</Button>
+                                <Button variant="secondary" size="sm" onClick={onOpenBooking}>Browse Schedule</Button>
                             </div>
                         </Card>
                         <div>
