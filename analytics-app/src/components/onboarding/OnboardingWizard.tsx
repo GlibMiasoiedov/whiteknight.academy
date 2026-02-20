@@ -2,13 +2,14 @@ import React, { useState, useRef } from 'react';
 import {
     Upload, Users, CheckCircle, HelpCircle, Activity,
     Calendar, Trophy, BookOpen, Target, ArrowLeft, Globe, Edit2,
-    Plus, Check, Trash2, Clock
+    Check
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import { ChessComLogo, LichessLogo, MasterDBLogo } from '../ui/Logos';
 import { FONTS, DASHBOARD_FONTS } from '../../constants/theme';
+import { TIMEZONES } from '../coaching/TimeZoneUtils';
 
 interface OnboardingWizardProps {
     isOpen: boolean;
@@ -41,57 +42,22 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
         primaryLang: string;
         secondaryLang: string;
         coachingType: 'individual' | 'group';
-        availability: { day: string; time: string }[];
+        studentAge: string;
         allowAnalysis: boolean;
     }>({
         level: null,
         goals: [],
-        timezone: 'Europe/Kyiv',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Warsaw',
         primaryLang: 'English',
         secondaryLang: 'None',
-        coachingType: 'individual',
-        availability: [{ day: 'Mon, Wed, Fri', time: '18:00 - 20:00' }],
+        coachingType: 'group',
+        studentAge: '',
         allowAnalysis: true,
     });
 
-    const [isAddingSlot, setIsAddingSlot] = useState(false);
-    const [newSlotDay, setNewSlotDay] = useState("Monday");
-    const [newSlotTime, setNewSlotTime] = useState("18:00");
 
-    const TIMEZONES = [
-        { label: "UTC−09:00 — Anchorage (USA, Alaska)", value: "America/Anchorage" },
-        { label: "UTC−08:00 — Los Angeles (USA)", value: "America/Los_Angeles" },
-        { label: "UTC−07:00 — Phoenix (USA) / Denver (USA)", value: "America/Denver" },
-        { label: "UTC−06:00 — Chicago (USA)", value: "America/Chicago" },
-        { label: "UTC−05:00 — New York (USA)", value: "America/New_York" },
-        { label: "UTC−04:00 — Caracas (Venezuela)", value: "America/Caracas" },
-        { label: "UTC−03:30 — St. John’s (Canada)", value: "America/St_Johns" },
-        { label: "UTC−03:00 — Buenos Aires (Argentina)", value: "America/Argentina/Buenos_Aires" },
-        { label: "UTC−02:00 — Fernando de Noronha (Brazil)", value: "America/Noronha" },
-        { label: "UTC−01:00 — Ponta Delgada (Azores, Portugal)", value: "Atlantic/Azores" },
-        { label: "UTC±00:00 — London (UK)", value: "Europe/London" },
-        { label: "UTC+01:00 — Berlin (Germany)", value: "Europe/Berlin" },
-        { label: "UTC+02:00 — Johannesburg (South Africa)", value: "Africa/Johannesburg" },
-        { label: "UTC+03:00 — Riyadh (Saudi Arabia)", value: "Asia/Riyadh" },
-        { label: "UTC+03:30 — Tehran (Iran)", value: "Asia/Tehran" },
-        { label: "UTC+04:00 — Dubai (UAE)", value: "Asia/Dubai" },
-        { label: "UTC+04:30 — Kabul (Afghanistan)", value: "Asia/Kabul" },
-        { label: "UTC+05:00 — Karachi (Pakistan)", value: "Asia/Karachi" },
-        { label: "UTC+05:30 — Delhi (India)", value: "Asia/Kolkata" },
-        { label: "UTC+05:45 — Kathmandu (Nepal)", value: "Asia/Kathmandu" },
-        { label: "UTC+06:00 — Dhaka (Bangladesh)", value: "Asia/Dhaka" },
-        { label: "UTC+06:30 — Yangon (Myanmar)", value: "Asia/Yangon" },
-        { label: "UTC+07:00 — Bangkok (Thailand)", value: "Asia/Bangkok" },
-        { label: "UTC+08:00 — Singapore (Singapore)", value: "Asia/Singapore" },
-        { label: "UTC+08:45 — Eucla (Australia)", value: "Australia/Eucla" },
-        { label: "UTC+09:00 — Tokyo (Japan) / Seoul (South Korea)", value: "Asia/Tokyo" },
-        { label: "UTC+09:30 — Adelaide (Australia)", value: "Australia/Adelaide" },
-        { label: "UTC+10:00 — Sydney (Australia)", value: "Australia/Sydney" },
-        { label: "UTC+10:30 — Lord Howe Island (Australia)", value: "Australia/Lord_Howe" },
-        { label: "UTC+11:00 — Nouméa (New Caledonia)", value: "Pacific/Noumea" },
-        { label: "UTC+12:00 — Auckland (New Zealand)", value: "Pacific/Auckland" },
-        { label: "UTC+12:45 — Waitangi (New Zealand)", value: "Pacific/Chatham" }
-    ];
+
+    // Imported TIMEZONES from TimeZoneUtils
 
     const LANGUAGES = ["English", "Ukrainian", "Polish", "Chinese", "Spanish", "French", "German"];
 
@@ -103,14 +69,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
         }
     };
 
-    const handleAddSlot = () => {
-        setPreferences({ ...preferences, availability: [...preferences.availability, { day: newSlotDay, time: newSlotTime }] });
-        setIsAddingSlot(false);
-    };
 
-    const removeSlot = (index: number) => {
-        setPreferences({ ...preferences, availability: preferences.availability.filter((_, i) => i !== index) });
-    };
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
@@ -267,7 +226,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                     </Card>
                     <div className="flex justify-between items-center mt-8">
                         <button onClick={() => { setPath('connect'); setStep(2); }} className="px-4 py-2 rounded hover:bg-white/5 text-slate-500 hover:text-white text-sm transition-colors">Wait, connect my games instead</button>
-                        <Button themeColor="#10B981" onClick={() => setStep(4)}>Find Beginner Groups</Button>
+                        <Button themeColor="#10B981" onClick={() => window.location.href = '/dashboard/coaching/enroll'}>Find Beginner Groups</Button>
                     </div>
                 </div>
             ) : (
@@ -363,6 +322,15 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                 {/* Section 1: Basic Info */}
                 <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Student Age <span className="text-red-400">*</span></label>
+                        <input
+                            type="number"
+                            value={preferences.studentAge} onChange={e => setPreferences({ ...preferences, studentAge: e.target.value })}
+                            placeholder="Enter age"
+                            className="w-full bg-[#080C14] border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-violet-500"
+                        />
+                    </div>
+                    <div className="space-y-2">
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Timezone <span className="text-red-400">*</span></label>
                         <select
                             value={preferences.timezone} onChange={e => setPreferences({ ...preferences, timezone: e.target.value })}
@@ -407,13 +375,28 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                             {LANGUAGES.filter(l => l !== preferences.primaryLang).map(l => <option key={l} value={l}>{l}</option>)}
                         </select>
                     </div>
+                    <div className="space-y-2">
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Connected Platforms</label>
+                        <div className="flex gap-2">
+                            <button onClick={() => connections?.chessCom ? toggleConnection('chessCom') : setActiveModal('chessCom')}
+                                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.chessCom ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
+                                <div className={`w-2 h-2 rounded-full ${connections?.chessCom ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                                {connections?.chessCom ? 'Connected' : 'Chess.com'}
+                            </button>
+                            <button onClick={() => connections?.lichess ? toggleConnection('lichess') : setActiveModal('lichess')}
+                                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.lichess ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
+                                <div className={`w-2 h-2 rounded-full ${connections?.lichess ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                                {connections?.lichess ? 'Connected' : 'Lichess'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Section 2: Goals */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Training Goals <span className="text-red-400">*</span></label>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Training Goals</label>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {['Improve Tactics', 'Opening Repertoire', 'Endgame Mastery', 'Tournament Prep', 'Chess960', 'Psychology', 'Other'].map(goal => (
+                        {['How the Pieces Move', 'Improve Tactics', 'Opening Repertoire', 'Endgame Mastery', 'Tournament Prep', 'Chess960', 'Psychology', 'Other'].map(goal => (
                             <div
                                 key={goal}
                                 onClick={() => toggleGoal(goal)}
@@ -426,42 +409,8 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                     </div>
                 </div>
 
-                {/* Section 3: Availability & Coaching */}
+                {/* Section 3: Coaching Preference */}
                 <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Weekly Availability</label>
-                        <div className="bg-[#080C14] border border-white/10 rounded-lg p-4 space-y-2 min-h-[140px]">
-                            {preferences.availability.map((slot, idx) => (
-                                <div key={idx} className="flex justify-between items-center text-xs text-slate-300 bg-white/5 p-2 rounded group">
-                                    <div className="flex gap-2 items-center">
-                                        <Clock size={12} className="text-slate-500" />
-                                        <span>{slot.day}</span>
-                                        <span className="text-slate-500">|</span>
-                                        <span>{slot.time}</span>
-                                    </div>
-                                    <button onClick={() => removeSlot(idx)} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
-                                </div>
-                            ))}
-
-                            {isAddingSlot ? (
-                                <div className="bg-white/5 p-2 rounded border border-white/10 animate-in fade-in">
-                                    <select className="w-full bg-[#0F1623] text-xs text-white p-1 rounded mb-2 border border-white/10" value={newSlotDay} onChange={e => setNewSlotDay(e.target.value)}>
-                                        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => <option key={d}>{d}</option>)}
-                                    </select>
-                                    <input type="time" className="w-full bg-[#0F1623] text-xs text-white p-1 rounded mb-2 border border-white/10" value={newSlotTime} onChange={e => setNewSlotTime(e.target.value)} />
-                                    <div className="flex gap-2">
-                                        <Button size="xs" fullWidth onClick={handleAddSlot}>Add</Button>
-                                        <Button size="xs" variant="secondary" fullWidth onClick={() => setIsAddingSlot(false)}>Cancel</Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div onClick={() => setIsAddingSlot(true)} className="border border-dashed border-white/10 rounded-lg p-2 flex items-center justify-center text-slate-500 text-xs cursor-pointer hover:bg-white/5 transition-colors">
-                                    <Plus size={12} className="mr-1" /> Add time slot
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
                     <div className="space-y-4">
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Coaching Preference</label>
@@ -502,7 +451,22 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                 <div className="flex items-center gap-4">
                     <button onClick={switchPath} className="text-slate-500 hover:text-white text-sm">Switch to {path === 'connect' ? 'Beginner' : 'Connect'} path</button>
                     <div title={!preferences.level ? "Please select your skill level" : ""}>
-                        <Button themeColor="#8B5CF6" onClick={nextStep} disabled={!preferences.level || !preferences.allowAnalysis}>Generate Report</Button>
+                        <Button themeColor="#8B5CF6" onClick={() => {
+                            // Save profile to localStorage
+                            localStorage.setItem('wk_coaching_profile', JSON.stringify({
+                                level: preferences.level,
+                                studentAge: preferences.studentAge,
+                                coachingType: preferences.coachingType,
+                                primaryLang: preferences.primaryLang,
+                                timezone: preferences.timezone,
+                                selectedGoals: preferences.goals
+                            }));
+                            // Save wizard seen
+                            localStorage.setItem('wk_analytics_wizard_seen', 'true');
+                            // Trigger storage event manually so other components catch it in the same window
+                            window.dispatchEvent(new Event('storage'));
+                            nextStep();
+                        }} disabled={!preferences.level || !preferences.studentAge || !preferences.allowAnalysis}>Generate Report</Button>
                     </div>
                 </div>
             </div>
@@ -575,7 +539,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                                 <li className="flex items-center gap-2"><CheckCircle size={10} className="text-emerald-500" /> English Speaking</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={10} className="text-emerald-500" /> 2 Seats Left</li>
                             </ul>
-                            <Button size="sm" themeColor="#8B5CF6" fullWidth onClick={onClose}>Join Batch</Button>
+                            <Button size="sm" themeColor="#8B5CF6" fullWidth onClick={() => {
+                                onClose();
+                                window.location.href = '/dashboard/coaching/enroll';
+                            }}>Join Batch</Button>
                         </Card>
                     ) : (
                         <Card className="border-white/5 bg-white/5 relative overflow-hidden flex flex-col items-center justify-center text-center p-6 border-dashed">
@@ -588,10 +555,16 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose, co
                 </div>
 
                 <div className="flex justify-center gap-6">
-                    <Button size="lg" themeColor={path === 'new' ? "#10B981" : "#8B5CF6"} onClick={onClose} icon={Users}>
+                    <Button size="lg" themeColor={path === 'new' ? "#10B981" : "#8B5CF6"} onClick={() => {
+                        onClose();
+                        window.location.href = '/dashboard/coaching/enroll';
+                    }} icon={Users}>
                         Find a Group Coach Now
                     </Button>
-                    <Button size="lg" variant="secondary" onClick={onClose}>
+                    <Button size="lg" variant="secondary" onClick={() => {
+                        onClose();
+                        window.location.href = '/dashboard';
+                    }}>
                         Explore Dashboard
                     </Button>
                 </div>

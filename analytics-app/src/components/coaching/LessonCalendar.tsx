@@ -8,9 +8,10 @@ interface LessonCalendarProps {
     slots: LessonSlot[];
     onSelectSlot: (slot: LessonSlot) => void;
     selectedSlotId: string | null;
-    entryPointOnly: boolean;
-    timezone: string;
+    entryPointOnly?: boolean;
     formatFilter?: 'all' | 'group' | 'individual';
+    levelFilter?: 'all' | 'beginner' | 'intermediate';
+    timezone?: string;
     onDateClick?: (dateStr: string) => void;
     hideExpansion?: boolean;
     /** The date currently selected/expanded by the user (gold border) */
@@ -26,7 +27,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const LessonCalendar: React.FC<LessonCalendarProps> = ({
     slots, onSelectSlot, selectedSlotId, entryPointOnly, timezone,
-    formatFilter = 'all', onDateClick, hideExpansion = false,
+    formatFilter = 'all', levelFilter = 'all', onDateClick, hideExpansion = false,
     selectedDate: externalSelectedDate, highlightDates, bookedDate
 }) => {
     const today = new Date();
@@ -59,13 +60,13 @@ const LessonCalendar: React.FC<LessonCalendarProps> = ({
         });
     }, [slots, timezone]);
 
-    // 2. Filter by entry point AND format
     const filteredSlots = useMemo(() => {
         let filtered = localSlots;
         if (entryPointOnly) filtered = filtered.filter(s => s.isEntryPoint);
         if (formatFilter !== 'all') filtered = filtered.filter(s => s.format === formatFilter);
+        if (levelFilter !== 'all') filtered = filtered.filter(s => s.level === levelFilter || s.level === 'all');
         return filtered;
-    }, [localSlots, entryPointOnly, formatFilter]);
+    }, [localSlots, entryPointOnly, formatFilter, levelFilter]);
 
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDayRaw = new Date(currentYear, currentMonth, 1).getDay();

@@ -107,7 +107,7 @@ const DashboardLayout = () => {
     return (
         <div className="flex min-h-screen font-sans bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white relative">
             <MobileGate />
-            <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.9.3 - 2026-02-19</div>
+            <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.9.8 - 2026-02-20</div>
             <DevToolbar
                 setConnections={setConnections}
                 setDemoMode={setDemoMode}
@@ -143,6 +143,7 @@ const DashboardLayout = () => {
                 theme={currentTheme}
                 connections={connections}
                 openConnectModal={(platform) => setActiveModal(platform)}
+                disconnectPlatform={toggleConnection}
             />
 
             <Sidebar
@@ -163,6 +164,7 @@ const DashboardLayout = () => {
                             openManualInputs={() => setManualInputsConfig({ isOpen: true, canSkip: false })}
                             connections={connections}
                             openModal={setActiveModal}
+                            disconnectPlatform={toggleConnection}
                         />
                     </div>
                 ) : (

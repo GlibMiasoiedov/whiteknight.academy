@@ -36,8 +36,8 @@ const Button: React.FC<ButtonProps> = ({
 
     if (variant === 'primary') {
         const color = themeColor || '#8B5CF6';
-        style = { ...style, backgroundColor: color };
-        variantClass = `text-white shadow-[0_0_20px_-5px_${color}80] hover:brightness-110 border border-white/10`;
+        style = { ...style, backgroundColor: color, boxShadow: `0 0 20px -5px ${color}80` };
+        variantClass = `text-white hover:brightness-110 border border-white/10`;
     } else if (variant === 'secondary') {
         variantClass = "border border-white/10 bg-white/5 hover:bg-white/10 text-white backdrop-blur-sm";
     } else if (variant === 'ghost') {

@@ -32,7 +32,12 @@ export interface LessonSlot {
 
 export interface Curriculum {
     level: 'beginner' | 'intermediate';
-    lessons: { number: number; topic: string; reportCategory: string }[];
+    lessons: {
+        number: number;
+        topic: string;
+        reportCategory: string;
+        isEntryPoint?: boolean;
+    }[];
 }
 
 // ─── Coaches ─────────────────────────────────────────────
@@ -87,51 +92,38 @@ export const LANGUAGE_LABELS: Record<string, string> = {
 export const BEGINNER_CURRICULUM: Curriculum = {
     level: 'beginner',
     lessons: [
-        { number: 1, topic: 'How the Pieces Move & Board Setup', reportCategory: 'entry' },
+        { number: 1, topic: 'How the Pieces Move & Board Setup', reportCategory: 'entry', isEntryPoint: true },
         { number: 2, topic: 'Check, Checkmate & Stalemate', reportCategory: 'blunder-rate' },
         { number: 3, topic: 'Piece Values & Captures', reportCategory: 'accuracy' },
-        { number: 4, topic: 'Basic Tactics: Forks', reportCategory: 'tactics' },
+        { number: 4, topic: 'Basic Tactics: Forks', reportCategory: 'tactics', isEntryPoint: true },
         { number: 5, topic: 'Basic Tactics: Pins & Skewers', reportCategory: 'tactics' },
         { number: 6, topic: 'Safe Squares & Hanging Pieces', reportCategory: 'board-vision' },
-        { number: 7, topic: 'Opening Principles', reportCategory: 'opening-accuracy' },
+        { number: 7, topic: 'Opening Principles', reportCategory: 'opening-accuracy', isEntryPoint: true },
         { number: 8, topic: 'Simple Checkmate Patterns', reportCategory: 'endgame' },
         { number: 9, topic: 'Intro to Pawn Endings', reportCategory: 'endgame' },
-        { number: 10, topic: 'Your First Full Game', reportCategory: 'accuracy' },
-        { number: 11, topic: 'Time Management Basics', reportCategory: 'time-management' },
-        { number: 12, topic: 'Review & Mini-Tournament', reportCategory: 'all' },
     ],
 };
 
 export const INTERMEDIATE_CURRICULUM: Curriculum = {
     level: 'intermediate',
     lessons: [
-        { number: 1, topic: 'Tactical Combinations', reportCategory: 'tactics' },
-        { number: 2, topic: 'Advanced Pins & Deflections', reportCategory: 'tactics' },
-        { number: 3, topic: 'Opening Repertoire: Solid White', reportCategory: 'opening-accuracy' },
-        { number: 4, topic: 'Opening Repertoire: Solid Black', reportCategory: 'opening-accuracy' },
-        { number: 5, topic: 'Middlegame: Weak Squares & Outposts', reportCategory: 'middlegame' },
-        { number: 6, topic: 'Middlegame: Pawn Structure', reportCategory: 'middlegame' },
-        { number: 7, topic: 'Rook Endgames: Lucena & Philidor', reportCategory: 'endgame' },
-        { number: 8, topic: 'Complex Endgames: Passed Pawns', reportCategory: 'endgame' },
-        { number: 9, topic: 'Time Management Under Pressure', reportCategory: 'time-management' },
-        { number: 10, topic: 'Calculation & Visualization', reportCategory: 'accuracy' },
-        { number: 11, topic: 'Positional Sacrifices & Attack', reportCategory: 'middlegame' },
-        { number: 12, topic: 'Tournament Game Review', reportCategory: 'all' },
+        { number: 1, topic: 'Time Management Basics', reportCategory: 'time-management', isEntryPoint: true },
+        { number: 2, topic: 'Your First Full Game', reportCategory: 'accuracy' },
+        { number: 3, topic: 'Review & Mini-Tournament', reportCategory: 'all' },
+        { number: 4, topic: 'Tactical Combinations', reportCategory: 'tactics', isEntryPoint: true },
+        { number: 5, topic: 'Advanced Pins & Deflections', reportCategory: 'tactics' },
+        { number: 6, topic: 'Opening Repertoire: Solid White', reportCategory: 'opening-accuracy', isEntryPoint: true },
+        { number: 7, topic: 'Opening Repertoire: Solid Black', reportCategory: 'opening-accuracy' },
+        { number: 8, topic: 'Middlegame: Weak Squares & Outposts', reportCategory: 'middlegame', isEntryPoint: true },
+        { number: 9, topic: 'Middlegame: Pawn Structure', reportCategory: 'middlegame' },
+        { number: 10, topic: 'Rook Endgames: Lucena & Philidor', reportCategory: 'endgame', isEntryPoint: true },
+        { number: 11, topic: 'Complex Endgames: Passed Pawns', reportCategory: 'endgame' },
+        { number: 12, topic: 'Time Management Under Pressure', reportCategory: 'time-management' },
+        { number: 13, topic: 'Calculation & Visualization', reportCategory: 'accuracy' },
+        { number: 14, topic: 'Positional Sacrifices & Attack', reportCategory: 'middlegame' },
+        { number: 15, topic: 'Tournament Game Review', reportCategory: 'all' },
     ],
 };
-
-// ─── Individual Lesson Topics ────────────────────────────
-
-const INDIVIDUAL_TOPICS = [
-    'Personalized Opening Prep',
-    'Game Analysis & Review',
-    'Tactical Training Session',
-    'Endgame Technique',
-    'Tournament Preparation',
-    'Calculation & Visualization',
-    'Positional Understanding',
-    'Time Management Coaching',
-];
 
 // ─── Weekly Schedule Template ────────────────────────────
 
@@ -153,42 +145,49 @@ const WEEKLY_TEMPLATE: WeeklySlotTemplate[] = [
     { dayOfWeek: 1, time: '14:00', group: 'Intermediate Strategy', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 1, time: '18:00', group: 'Beginner Tactics (Evening)', level: 'beginner', coachId: 'daniel', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     // Monday — Individual
-    { dayOfWeek: 1, time: '11:00', group: 'Individual — Glib', level: 'all', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
-    { dayOfWeek: 1, time: '16:00', group: 'Individual — Maria', level: 'all', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 1, time: '11:00', group: 'Individual Beginner', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 1, time: '16:00', group: 'Individual Intermediate', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
     // Tuesday — Group
     { dayOfWeek: 2, time: '10:00', group: 'Intermediate Openings', level: 'intermediate', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 2, time: '14:00', group: 'Beginner Tactics A', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 2, time: '18:00', group: 'Intermediate Endgames', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     // Tuesday — Individual
-    { dayOfWeek: 2, time: '12:00', group: 'Individual — Daniel', level: 'all', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 2, time: '12:00', group: 'Individual Intermediate (Tue)', level: 'intermediate', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
     // Wednesday — Group
     { dayOfWeek: 3, time: '10:00', group: 'Complete Beginner B', level: 'beginner', coachId: 'glib', language: 'ua', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 3, time: '14:00', group: 'Beginner Vision & Safety', level: 'beginner', coachId: 'maria', language: 'pl', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 3, time: '18:00', group: 'Intermediate Time Mgmt', level: 'intermediate', coachId: 'daniel', language: 'zh', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     // Wednesday — Individual
-    { dayOfWeek: 3, time: '11:00', group: 'Individual — Glib', level: 'all', coachId: 'glib', language: 'ua', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
-    { dayOfWeek: 3, time: '16:00', group: 'Individual — Maria', level: 'all', coachId: 'maria', language: 'pl', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 3, time: '11:00', group: 'Individual Beginner (Wed)', level: 'beginner', coachId: 'glib', language: 'ua', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 3, time: '16:00', group: 'Individual Intermediate (Wed)', level: 'intermediate', coachId: 'maria', language: 'pl', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
     // Thursday — Group
     { dayOfWeek: 4, time: '10:00', group: 'Beginner Tactics B', level: 'beginner', coachId: 'daniel', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 4, time: '14:00', group: 'Complete Beginner C', level: 'beginner', coachId: 'glib', language: 'pl', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 4, time: '18:00', group: 'Intermediate Combinations', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     // Thursday — Individual
-    { dayOfWeek: 4, time: '15:00', group: 'Individual — Daniel', level: 'all', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 4, time: '15:00', group: 'Individual Intermediate (Thu)', level: 'intermediate', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 4, time: '20:00', group: 'Individual Beginner (Thu)', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
     // Friday — Group
     { dayOfWeek: 5, time: '10:00', group: 'Beginner Endgames', level: 'beginner', coachId: 'maria', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 5, time: '14:00', group: 'Intermediate Calculation', level: 'intermediate', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 5, time: '18:00', group: 'Beginner Practical Play', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     // Friday — Individual
-    { dayOfWeek: 5, time: '11:00', group: 'Individual — Glib', level: 'all', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
-    { dayOfWeek: 5, time: '16:00', group: 'Individual — Maria', level: 'all', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 5, time: '11:00', group: 'Individual Beginner (Fri)', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 5, time: '16:00', group: 'Individual Intermediate (Fri)', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
     // Saturday — Group
     { dayOfWeek: 6, time: '10:00', group: 'Complete Beginner (Weekend)', level: 'beginner', coachId: 'maria', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 6, time: '14:00', group: 'Intermediate Strategy (Weekend)', level: 'intermediate', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 6, time: '16:00', group: 'Beginner Tactics (Weekend)', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
+    // Saturday — Individual
+    { dayOfWeek: 6, time: '11:00', group: 'Individual Beginner (Sat)', level: 'beginner', coachId: 'maria', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 6, time: '15:00', group: 'Individual Intermediate (Sat)', level: 'intermediate', coachId: 'daniel', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
     // Sunday — Group
     { dayOfWeek: 0, time: '10:00', group: 'Beginner Review & Tournament', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
     { dayOfWeek: 0, time: '14:00', group: 'Intermediate Review & Tournament', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 4, format: 'group' },
-    { dayOfWeek: 0, time: '16:00', group: 'Open Practice Session', level: 'all', coachId: 'daniel', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
+    { dayOfWeek: 0, time: '16:00', group: 'Open Practice Session', level: 'beginner', coachId: 'daniel', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 4, format: 'group' },
+    // Sunday — Individual
+    { dayOfWeek: 0, time: '11:00', group: 'Individual Beginner (Sun)', level: 'beginner', coachId: 'glib', language: 'en', curriculum: BEGINNER_CURRICULUM, seatsTotal: 1, format: 'individual' },
+    { dayOfWeek: 0, time: '15:00', group: 'Individual Intermediate (Sun)', level: 'intermediate', coachId: 'maria', language: 'en', curriculum: INTERMEDIATE_CURRICULUM, seatsTotal: 1, format: 'individual' },
 ];
 
 // ─── Generate concrete lesson slots for a date range ─────
@@ -224,20 +223,12 @@ export function generateLessonSlots(startDate: string, endDate: string): LessonS
 
             let topic: string;
             let lessonNumber: number;
-            let totalLessons: number;
 
-            if (isIndividual) {
-                const topicIdx = (groupCounters[template.group] - 1) % INDIVIDUAL_TOPICS.length;
-                topic = INDIVIDUAL_TOPICS[topicIdx];
-                lessonNumber = 1;
-                totalLessons = 1;
-            } else {
-                totalLessons = template.curriculum.lessons.length;
-                const lessonIndex = (groupCounters[template.group] - 1) % totalLessons;
-                const lesson = template.curriculum.lessons[lessonIndex];
-                topic = lesson.topic;
-                lessonNumber = lesson.number;
-            }
+            const totalLessons = template.curriculum.lessons.length;
+            const lessonIndex = (groupCounters[template.group] - 1) % totalLessons;
+            const lesson = template.curriculum.lessons[lessonIndex];
+            topic = lesson.topic;
+            lessonNumber = lesson.number;
 
             // Simulate some seats taken (deterministic based on date)
             const dateSeed = d.getDate() + d.getMonth() * 31;
@@ -260,7 +251,8 @@ export function generateLessonSlots(startDate: string, endDate: string): LessonS
                 seatsTotal: template.seatsTotal,
                 seatsTaken,
                 language: template.language,
-                isEntryPoint: isIndividual ? true : lessonNumber === 1,
+                // Use the explicit isEntryPoint flag on the curriculum lesson
+                isEntryPoint: !!lesson.isEntryPoint,
                 format: template.format,
             });
         }

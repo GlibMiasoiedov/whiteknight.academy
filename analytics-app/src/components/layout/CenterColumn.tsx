@@ -24,11 +24,63 @@ interface CenterColumnProps {
     onOpenBooking: () => void;
 }
 
+export interface UserProfile {
+    level: string;
+    studentAge: string;
+    coachingType: string;
+    primaryLang: string;
+    timezone: string;
+    selectedGoals?: string[];
+}
+
 const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet, onOpenBooking }) => {
     // Determine if we show State B (Connected/Matched — has actual data)
     const isConnected = Object.values(connections).some(Boolean);
     const showStateB = isConnected || isMatchSettingsSet;
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Profile data for Coach Matching block
+    const [profile, setProfile] = React.useState<UserProfile | null>(null);
+
+    React.useEffect(() => {
+        const loadProfile = () => {
+            const saved = localStorage.getItem('coachingProfile');
+            if (saved) {
+                try {
+                    setProfile(JSON.parse(saved));
+                } catch (e) {
+                    console.error('Failed to parse coachingProfile', e);
+                }
+            } else {
+                setProfile(null);
+            }
+        };
+
+        // Load initially
+        loadProfile();
+
+        // Listen for changes from other tabs/modals (if they update localStorage)
+        const handleStorage = (e: StorageEvent) => {
+            if (e.key === 'coachingProfile') {
+                loadProfile();
+            }
+        };
+        window.addEventListener('storage', handleStorage);
+
+        // Also poll lightly or rely on isMatchSettingsSet trigger if storage event doesn't fire across same window
+        // But since we are likely opening a modal and closing it, we should re-check when isMatchSettingsSet changes
+    }, []);
+
+    React.useEffect(() => {
+        if (isMatchSettingsSet) {
+            const saved = localStorage.getItem('coachingProfile');
+            if (saved) {
+                try { setProfile(JSON.parse(saved)); } catch (e) { }
+            }
+        } else {
+            setProfile(null);
+        }
+    }, [isMatchSettingsSet]);
 
     const scrollToConnect = () => {
         if (activeTab !== 'home') {
@@ -229,13 +281,52 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
                                                 <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-slate-300 border border-white/10"><ListChecks size={20} /></div>
                                                 <Badge type="neutral" label={showStateB ? "Matching" : "Not set"} />
                                             </div>
-                                            <div className="flex justify-between items-end">
+                                            <div className="flex justify-between items-end mb-3">
                                                 <div>
-                                                    <h3 className="text-white font-bold mb-1">Match with a Coach</h3>
-                                                    <p className="text-xs text-slate-400">Goals, level, preferences.</p>
+                                                    <h3 className="text-white font-bold mb-1">Coach Matching & Goals</h3>
+                                                    <p className="text-xs text-slate-400">Help us personalize your plan.</p>
                                                 </div>
                                                 <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); openManualInputs(true); }}>Edit</Button>
                                             </div>
+
+                                            {/* Profile Info (if any) */}
+                                            {showStateB && profile && (
+                                                <div className="flex flex-col gap-2 pt-3 border-t border-white/5">
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        <div className="text-[9px] font-bold px-2 py-1 rounded border bg-white/5 border-white/10 text-slate-300">{profile.level?.split(' (')[0] || '—'}</div>
+                                                        {profile.studentAge && <div className="text-[9px] font-bold px-2 py-1 rounded border bg-white/5 border-white/10 text-slate-300">Age: {profile.studentAge}</div>}
+                                                        {profile.coachingType && <div className={`text-[9px] font-bold px-2 py-1 rounded border ${profile.coachingType === 'individual' ? 'bg-violet-500/10 border-violet-500/20 text-violet-300' : 'bg-amber-500/10 border-amber-500/20 text-amber-300'}`}>{profile.coachingType === 'group' ? 'Group' : '1:1'}</div>}
+                                                        {profile.primaryLang && <div className="text-[9px] font-bold px-2 py-1 rounded border bg-white/5 border-white/10 text-slate-300">{profile.primaryLang}</div>}
+                                                    </div>
+
+                                                    {(connections?.chessCom || connections?.lichess) && (
+                                                        <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-white/5 mt-1">
+                                                            <span className="text-[10px] text-slate-500 font-medium w-full mb-0.5">Connected</span>
+                                                            {connections?.chessCom && (
+                                                                <button onClick={(e) => { e.stopPropagation(); toggleConnection('chessCom'); }} className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 px-1.5 py-0.5 rounded flex items-center gap-1 transition-colors">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Chess.com
+                                                                </button>
+                                                            )}
+                                                            {connections?.lichess && (
+                                                                <button onClick={(e) => { e.stopPropagation(); toggleConnection('lichess'); }} className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 px-1.5 py-0.5 rounded flex items-center gap-1 transition-colors">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Lichess
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {profile.selectedGoals && profile.selectedGoals.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-white/5 mt-1">
+                                                            <span className="text-[10px] text-slate-500 font-medium w-full mb-0.5">Goals</span>
+                                                            {profile.selectedGoals.map(goal => (
+                                                                <span key={goal} className="text-[9px] bg-white/5 text-slate-300 border border-white/10 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                                                    {goal}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </Card>
 
                                         {/* Health (Locked) */}
@@ -461,18 +552,9 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
             <div className="flex justify-between items-end border-b border-white/5 pb-6">
                 <div>
                     <h1 className={DASHBOARD_FONTS.h1}>Coaching Hub</h1>
-                    <p className={DASHBOARD_FONTS.body}>{showStateB ? "Find your perfect coach or join a group class." : "Connect data to get personalized coach recommendations."}</p>
+                    <p className={DASHBOARD_FONTS.body}>{showStateB ? "Find your perfect coach or join a group class." : "Review and complete your matching profile to get coach recommendations."}</p>
                 </div>
-                <Button themeColor={theme.color} icon={Users} onClick={() => {
-                    const hasData = isConnected || isDemoMode;
-                    if (hasData) {
-                        if (confirm("Is this your account? We'll use your game data to match you.")) {
-                            openManualInputs(true);
-                        }
-                    } else {
-                        openManualInputs(false);
-                    }
-                }}>Find a Coach</Button>
+                <Button themeColor={theme.color} icon={Users} onClick={() => window.location.href = '/dashboard/coaching/enroll'}>Find a Coach</Button>
             </div>
 
             {/* MY JOURNEY (Placeholder) */}
@@ -533,12 +615,93 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
                 </div>
             ) : (
                 // COACHING STATE A
-                <div className="flex flex-col items-center justify-center text-center py-20">
-                    <div className="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mb-6 border border-amber-500/20">
+                <div className="flex flex-col items-center justify-center text-center py-20 animate-in fade-in max-w-2xl mx-auto">
+                    <div className="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mb-6 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                         <Users size={32} className="text-amber-500" />
                     </div>
                     <h2 className={DASHBOARD_FONTS.h2 + " mb-2"}>Find Your Coach</h2>
-                    <p className={DASHBOARD_FONTS.body + " max-w-md mb-8"}>Connect your accounts so we can match you with the perfect coach based on your playstyle and weaknesses.</p>
+                    <p className={DASHBOARD_FONTS.body + " mb-8 max-w-lg"}>Connect your accounts so we can match you with the perfect coach based on your playstyle and weaknesses.</p>
+
+                    {profile && (
+                        <div className="w-full bg-[#0B101B] border border-white/10 rounded-2xl p-6 shadow-xl text-left mt-4 border-t-4 border-t-amber-500 relative overflow-hidden">
+                            {/* Decorative background blur */}
+                            <div className="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/10 blur-[60px] rounded-full pointer-events-none" />
+
+                            <div className="flex items-center justify-between mb-4 relative z-10">
+                                <h3 className="font-bold text-white uppercase tracking-wide text-sm flex items-center gap-2">
+                                    <Target size={16} className="text-amber-500" /> Coach Matching & Goals
+                                </h3>
+                                <Button size="xs" variant="secondary" onClick={() => openManualInputs?.()}>Edit</Button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-x-8 gap-y-4 relative z-10">
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-slate-400">Skill Level:</span>
+                                        <span className="text-white font-medium">{profile.level?.split(' (')[0] || '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-slate-400">Format:</span>
+                                        <span className={`font-medium ${profile.coachingType === 'individual' ? 'text-violet-400' : 'text-amber-400'}`}>
+                                            {profile.coachingType === 'individual' ? '1:1 Coaching' : 'Group Class'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-slate-400">Language:</span>
+                                        <span className="text-white font-medium">{profile.primaryLang || '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-slate-400">Timezone:</span>
+                                        <span className="text-white font-medium truncate max-w-[120px]" title={profile.timezone}>{profile.timezone?.split('/')[1]?.replace('_', ' ') || profile.timezone}</span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="text-xs text-slate-400 mb-2">Connected Platforms:</div>
+                                    <div className="flex gap-2">
+                                        {connections.chessCom ? (
+                                            <div className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-1 rounded flex items-center gap-1.5 font-medium">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Chess.com
+                                            </div>
+                                        ) : (
+                                            <button onClick={() => openModal('chessCom')} className="text-[10px] bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 px-2 py-1 rounded transition-colors">
+                                                Connect Chess.com
+                                            </button>
+                                        )}
+                                        {connections.lichess ? (
+                                            <div className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-1 rounded flex items-center gap-1.5 font-medium">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Lichess
+                                            </div>
+                                        ) : (
+                                            <button onClick={() => openModal('lichess')} className="text-[10px] bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 px-2 py-1 rounded transition-colors">
+                                                Connect Lichess
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {profile.selectedGoals && profile.selectedGoals.length > 0 && (
+                                        <div className="mt-3 pt-3 border-t border-white/5">
+                                            <div className="text-xs text-slate-400 mb-2">Primary Goals:</div>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {profile.selectedGoals.map(goal => (
+                                                    <span key={goal} className="text-[9px] bg-white/10 text-slate-300 font-medium px-1.5 py-0.5 rounded border border-white/5">
+                                                        {goal}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* CTA to actually go enroll */}
+                            <div className="mt-6 pt-4 border-t border-white/5 flex justify-end">
+                                <Button themeColor="#F59E0B" onClick={() => window.location.href = '/dashboard/coaching/enroll'} icon={Target}>
+                                    View Suggested Coaches
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

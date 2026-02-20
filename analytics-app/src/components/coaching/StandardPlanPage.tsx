@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { ArrowLeft, Users, User, Check, Calendar, Star, Target, Pencil, AlertTriangle, Lightbulb, Clock, Zap, Award, Globe } from 'lucide-react';
+import { ArrowLeft, Users, User, Check, Calendar, Star, Target, Pencil, AlertTriangle, Lightbulb, Clock, Zap, Award, Globe, ChevronDown } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import LessonCalendar from './LessonCalendar';
@@ -123,7 +123,7 @@ function getFutureSessions(selectedSlot: LessonSlot | null, allSlots: LessonSlot
         .filter(s =>
             s.id !== selectedSlot.id &&
             s.coachId === selectedSlot.coachId &&
-            s.topic === selectedSlot.topic &&
+            s.group === selectedSlot.group &&
             s.date > selectedSlot.date
         )
         .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
@@ -137,7 +137,7 @@ function getRelatedDates(selectedSlot: LessonSlot | null, allSlots: LessonSlot[]
     allSlots.forEach(s => {
         if (s.id !== selectedSlot.id &&
             s.coachId === selectedSlot.coachId &&
-            s.topic === selectedSlot.topic &&
+            s.group === selectedSlot.group &&
             s.date >= selectedSlot.date) {
             dates.add(s.date);
         }
@@ -151,14 +151,18 @@ const StandardPlanPage: React.FC<{
     openManualInputs?: () => void;
     connections?: { chessCom: boolean; lichess: boolean; masterDb: boolean };
     openModal?: (modal: 'chessCom' | 'lichess' | 'masterDb' | null) => void;
-}> = ({ onBack, openManualInputs }) => {
+    disconnectPlatform?: (platform: 'chessCom' | 'lichess' | 'masterDb') => void;
+}> = ({ onBack, openManualInputs, connections, disconnectPlatform }) => {
     const navigate = useNavigate();
     const profile = useCoachingProfile();
 
     const [planType, setPlanType] = useState<'all' | 'group' | 'individual'>('all');
+    const [selectedLevel, setSelectedLevel] = useState<'all' | 'beginner' | 'intermediate'>('all');
+    const [isLevelDropdownOpen, setIsLevelDropdownOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState<LessonSlot | null>(null);
     const [showAllSessions, setShowAllSessions] = useState(false);
     const [timezone, setTimezone] = useState(getBrowserTimezone);
+    const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
 
     // Day currently expanded in schedule
     const today = new Date();
@@ -173,9 +177,15 @@ const StandardPlanPage: React.FC<{
     const hasProfile = !!profile;
 
     const handleSelectSlot = useCallback((slot: LessonSlot) => {
-        setSelectedSlot(slot);
-        setPlanType(slot.format);
-    }, []);
+        if (selectedSlot?.id === slot.id) {
+            setSelectedSlot(null);
+            setSelectedLevel('all'); // Added this to reset level filter when deselecting slot
+        } else {
+            setSelectedSlot(slot);
+            setPlanType(slot.format);
+            if (slot.level !== 'all') setSelectedLevel(slot.level as 'beginner' | 'intermediate');
+        }
+    }, [selectedSlot]);
 
     // Future sessions & highlighted dates
     const futureSessions = useMemo(() => getFutureSessions(selectedSlot, ALL_LESSON_SLOTS), [selectedSlot]);
@@ -190,6 +200,7 @@ const StandardPlanPage: React.FC<{
             const params = new URLSearchParams({
                 type: selectedSlot.format,
                 plan: selectedSlot.format === 'group' ? 'standard' : 'individual',
+                interval: billingInterval,
                 firstLesson: selectedSlot.date,
                 time: selectedSlot.time,
                 group: selectedSlot.group,
@@ -219,8 +230,9 @@ const StandardPlanPage: React.FC<{
         let slots = ALL_LESSON_SLOTS.filter(s => s.date === expandedDate);
         if (!showAllSessions) slots = slots.filter(s => s.isEntryPoint);
         if (planType !== 'all') slots = slots.filter(s => s.format === planType);
+        if (selectedLevel !== 'all') slots = slots.filter(s => s.level === selectedLevel || s.format === 'individual');
         return slots;
-    }, [expandedDate, showAllSessions, planType]);
+    }, [expandedDate, showAllSessions, planType, selectedLevel]);
 
     /* ── Pricing ── */
     const currentPricing = planType === 'group' || (selectedSlot?.format === 'group')
@@ -230,8 +242,7 @@ const StandardPlanPage: React.FC<{
             : null;
 
     const effectiveFormat = selectedSlot?.format || (planType !== 'all' ? planType : null);
-    const hasTrial = effectiveFormat === 'group' && PRICING.group.trialDays > 0;
-    const canProceed = !!selectedSlot;
+    const canProceed = !!selectedSlot && missingHints.length === 0;
 
     return (
         <div className="flex h-screen bg-[#080C14] font-body text-slate-300 overflow-hidden">
@@ -254,22 +265,73 @@ const StandardPlanPage: React.FC<{
 
                     {/* ── Plan Card Selectors + Entry Point toggle ── */}
                     <div className="flex flex-wrap items-stretch gap-3 mb-2">
-                        <PlanFilterBtn active={planType === 'all'} onClick={() => { setPlanType('all'); setSelectedSlot(null); }}
+                        <PlanFilterBtn active={planType === 'all'} onClick={() => { setPlanType('all'); }}
                             label="All Formats" icon={<Star size={13} />} />
-                        <PlanFilterBtn active={planType === 'group'} onClick={() => { setPlanType('group'); setSelectedSlot(null); }}
+                        <PlanFilterBtn active={planType === 'group'} onClick={() => { setPlanType('group'); }}
                             label="Group Lessons" price="€99/mo" trialText="7-day free trial" icon={<Users size={13} />} color="amber" />
-                        <PlanFilterBtn active={planType === 'individual'} onClick={() => { setPlanType('individual'); setSelectedSlot(null); }}
+                        <PlanFilterBtn active={planType === 'individual'} onClick={() => { setPlanType('individual'); }}
                             label="Individual" price="€159/mo" icon={<User size={13} />} color="violet" />
 
                         <div className="w-px bg-white/10 self-stretch" />
 
-                        <button onClick={() => setShowAllSessions(!showAllSessions)}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border self-center ${!showAllSessions
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover-glow-amber-strong'
-                                : 'bg-white/[0.02] text-slate-500 border-white/5 hover-glow-white-strong'}`}>
-                            <Star size={11} className={!showAllSessions ? 'text-amber-400' : 'text-slate-600'} fill={!showAllSessions ? "currentColor" : "none"} />
-                            Entry Points Only
-                        </button>
+                        <div className="flex items-center gap-2 self-center relative">
+                            {/* Custom Level Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsLevelDropdownOpen(!isLevelDropdownOpen)}
+                                    className={`flex items-center gap-2 bg-[#080C14] hover:bg-[#0B101B] border rounded-lg px-3 py-1.5 text-xs font-bold transition-all min-w-[140px] justify-between shadow-lg ${isLevelDropdownOpen ? 'border-amber-500/50 shadow-[0_0_20px_-5px_rgba(245,158,11,0.3)] text-white' : 'border-white/10 text-slate-300 hover:text-white'}`}
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        <Target size={12} className={isLevelDropdownOpen ? 'text-amber-400' : 'text-slate-500'} />
+                                        <span>
+                                            {selectedLevel === 'all' ? 'All Levels' :
+                                                selectedLevel === 'beginner' ? 'Beginner' : 'Intermediate'}
+                                        </span>
+                                    </div>
+                                    <ChevronDown size={14} className={`transition-transform duration-200 ${isLevelDropdownOpen ? 'rotate-180 text-amber-400' : 'text-slate-500'}`} />
+                                </button>
+
+                                {isLevelDropdownOpen && (
+                                    <>
+                                        {/* Backdrop to close dropdown */}
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsLevelDropdownOpen(false)} />
+
+                                        {/* Dropdown Menu */}
+                                        <div className="absolute top-full left-0 mt-2 w-full min-w-[160px] bg-[#080C14] border border-white/10 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.7)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="p-1.5 space-y-0.5">
+                                                {(['all', 'beginner', 'intermediate'] as const).map((level) => (
+                                                    <button
+                                                        key={level}
+                                                        onClick={() => {
+                                                            setSelectedLevel(level);
+                                                            setIsLevelDropdownOpen(false);
+                                                        }}
+                                                        className={`w-full text-left px-3 py-2.5 text-xs font-bold rounded-lg transition-colors flex items-center justify-between ${selectedLevel === level
+                                                            ? 'bg-amber-500/10 text-amber-300'
+                                                            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                                                            }`}
+                                                    >
+                                                        <span>
+                                                            {level === 'all' ? 'All Levels' :
+                                                                level === 'beginner' ? 'Beginner' : 'Intermediate'}
+                                                        </span>
+                                                        {selectedLevel === level && <Check size={12} className="text-amber-400" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            <button onClick={() => setShowAllSessions(!showAllSessions)}
+                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border transition-all ${!showAllSessions
+                                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_15px_-5px_rgba(245,158,11,0.2)] hover-glow-amber-strong'
+                                    : 'bg-white/[0.02] text-slate-500 border-white/5 hover-glow-white-strong'}`}>
+                                <Star size={11} className={!showAllSessions ? 'text-amber-400' : 'text-slate-600'} fill={!showAllSessions ? "currentColor" : "none"} />
+                                Entry Points Only
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -287,6 +349,7 @@ const StandardPlanPage: React.FC<{
                                     entryPointOnly={!showAllSessions}
                                     timezone={timezone}
                                     formatFilter={planType}
+                                    levelFilter={selectedLevel}
                                     hideExpansion={true}
                                     onDateClick={(dateStr) => setExpandedDate(dateStr)}
                                     selectedDate={expandedDate}
@@ -311,7 +374,7 @@ const StandardPlanPage: React.FC<{
                             </div>
 
                             {expandedSlots.length > 0 ? (
-                                <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-2">
+                                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pt-3 -mt-3 pb-3 -mb-3 space-y-2 relative z-10">
                                     {expandedSlots.map(slot => (
                                         <ScheduleCard key={slot.id} slot={slot} isSelected={selectedSlot?.id === slot.id}
                                             onSelect={() => handleSelectSlot(slot)} timezone={timezone} />
@@ -356,10 +419,11 @@ const StandardPlanPage: React.FC<{
             </div>
 
             {/* ═══ RIGHT COLUMN ════════════════════ */}
-            <div className="w-[320px] xl:w-[350px] bg-[#080C14] border-l border-white/5 flex flex-col h-full shrink-0 overflow-y-auto custom-scrollbar p-5 ml-3">
-                <div className="space-y-4 flex flex-col h-full">
+            <div className="w-[320px] xl:w-[350px] bg-[#080C14] border-l border-white/5 flex flex-col h-full shrink-0 ml-3 relative">
 
-                    {/* ── Coach Matching (profile settings only) ── */}
+                {/* Scrollable upper content */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 pb-8">
+
                     {/* ── Coach Matching (profile settings only) ── */}
                     <button onClick={() => openManualInputs?.()}
                         className={`w-full text-left rounded-xl p-4 border group relative overflow-hidden shrink-0 ${hasProfile
@@ -367,72 +431,119 @@ const StandardPlanPage: React.FC<{
                             : 'bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20 hover-glow-amber-strong'
                             }`}>
                         <div className="flex items-start justify-between mb-2">
-                            <Target size={16} className={hasProfile ? 'text-emerald-400' : 'text-amber-400'} />
-                            <div className="bg-white/10 p-1 rounded-md opacity-60 group-hover:opacity-100 transition-opacity">
-                                <Pencil size={10} className="text-slate-300" />
+                            <span className="font-bold text-white text-sm block">Coach Matching & Goals</span>
+                            <div className="bg-white/10 p-1.5 rounded-md opacity-60 group-hover:opacity-100 transition-opacity">
+                                <Pencil size={12} className="text-slate-300" />
                             </div>
                         </div>
-                        <span className="font-bold text-white text-sm block mb-1">Coach Matching & Goals</span>
+
                         {hasProfile ? (
-                            <div className="space-y-1.5 mt-2">
-                                <ProfileTag label="Level" value={profile.level?.split(' (')[0] || '—'} />
-                                {profile.studentAge && <ProfileTag label="Age" value={profile.studentAge} />}
-                                {profile.selectedGoals?.length > 0 && (
-                                    <ProfileTag label="Goals" value={profile.selectedGoals.slice(0, 2).join(', ') + (profile.selectedGoals.length > 2 ? ` +${profile.selectedGoals.length - 2}` : '')} />
+                            <div className="flex flex-col gap-2.5">
+                                <div className="flex flex-wrap gap-1.5">
+                                    <ProfileTag value={profile.level?.split(' (')[0] || '—'} />
+                                    {profile.studentAge && <ProfileTag value={`Age: ${profile.studentAge}`} />}
+                                    {profile.coachingType && <ProfileTag value={profile.coachingType === 'group' ? 'Group' : '1:1'} highlight={profile.coachingType} />}
+                                    {profile.primaryLang && <ProfileTag value={profile.primaryLang} />}
+                                    {profile.timezone && <ProfileTag value={getTimezoneOffset(profile.timezone)} />}
+                                </div>
+
+                                {/* Platform Connections (if any) */}
+                                {(connections?.chessCom || connections?.lichess) && (
+                                    <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-emerald-500/10">
+                                        <span className="text-[10px] text-slate-400 font-medium w-full mb-0.5">Connected</span>
+                                        {connections?.chessCom && (
+                                            <button onClick={(e) => { e.stopPropagation(); disconnectPlatform?.('chessCom'); }} className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 px-1.5 py-0.5 rounded flex items-center gap-1 transition-colors">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Chess.com
+                                            </button>
+                                        )}
+                                        {connections?.lichess && (
+                                            <button onClick={(e) => { e.stopPropagation(); disconnectPlatform?.('lichess'); }} className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 px-1.5 py-0.5 rounded flex items-center gap-1 transition-colors">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Lichess
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
-                                {profile.coachingType && <ProfileTag label="Type" value={profile.coachingType === 'group' ? 'Group' : 'Individual'} />}
-                                {profile.primaryLang && <ProfileTag label="Lang" value={profile.primaryLang} />}
-                                {profile.timezone && <ProfileTag label="TZ" value={getTimezoneOffset(profile.timezone)} />}
+
+                                {/* Training Goals (if any) */}
+                                {profile.selectedGoals && profile.selectedGoals.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 pt-1.5 border-t border-emerald-500/10">
+                                        <span className="text-[10px] text-slate-400 font-medium w-full mb-0.5">Goals</span>
+                                        {profile.selectedGoals.map(goal => (
+                                            <span key={goal} className="text-[9px] bg-white/5 text-slate-300 border border-white/10 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                                {goal}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ) : (
-                            <span className="text-[11px] text-slate-400 leading-relaxed block">
-                                Personalize with level & goals.
+                            <span className="text-[11px] text-slate-400 leading-relaxed block mt-2">
+                                Personalize with level, goals & platforms.
                             </span>
                         )}
                     </button>
 
                     {/* ── Dynamic Recommendation ── */}
-                    <div className="rounded-xl p-3 border text-[11px] leading-relaxed bg-white/[0.02] border-white/5 text-slate-400 flex gap-2.5 shrink-0">
-                        <Lightbulb size={14} className="mt-0.5 shrink-0 text-amber-400/70" />
-                        <span>{getRecommendation(profile)}</span>
-                    </div>
+                    {!selectedSlot && (
+                        <div className="bg-[#080C14] border border-amber-500/30 rounded-xl p-5 flex gap-3 relative overflow-hidden group shadow-[0_5px_20px_-5px_rgba(245,158,11,0.15)] hover-glow-amber-strong shrink-0 animate-in fade-in cursor-default">
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-bl-[100px]" />
+                            <Lightbulb size={20} className="mt-0.5 shrink-0 text-amber-400 relative z-10" />
+                            <p className="text-sm font-medium text-slate-200 leading-relaxed relative z-10">
+                                {getRecommendation(profile)}
+                            </p>
+                        </div>
+                    )}
 
                     {/* ── Coach Info Card (appears when a lesson is selected) ── */}
                     {selectedCoach && selectedCoachHighlights && (
                         <div className="rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-4 shrink-0 animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/30 to-violet-500/30 flex items-center justify-center text-lg text-white font-bold font-display ring-2 ring-white/10">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/30 to-violet-500/30 flex items-center justify-center text-lg text-white font-bold font-display ring-2 ring-white/10 shrink-0">
                                     {selectedCoach.name.charAt(0)}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="text-white font-bold text-sm font-display">{selectedCoach.name}</div>
-                                    <div className="text-[10px] text-amber-400 font-medium">{selectedCoach.title} • {selectedCoachHighlights.tagline.split(' with ')[0]}</div>
+                                    <div className="text-[10px] text-amber-400 font-medium truncate">{selectedCoach.title} • {selectedCoachHighlights.tagline.split(' with ')[0]}</div>
                                 </div>
                             </div>
-                            <p className="text-[10px] text-slate-400 leading-relaxed mb-3 italic">"{selectedCoachHighlights.style}"</p>
-                            <div className="space-y-1.5">
-                                {selectedCoachHighlights.achievements.map((ach, i) => (
-                                    <div key={i} className="flex items-start gap-2 text-[10px]">
-                                        <Award size={10} className="text-amber-400/60 mt-0.5 shrink-0" />
-                                        <span className="text-slate-300">{ach}</span>
-                                    </div>
-                                ))}
+
+                            {/* Summary Sentence */}
+                            <p className="text-[11px] text-slate-300 leading-relaxed mb-3">
+                                {selectedCoachHighlights.style}
+                            </p>
+
+                            {/* Chips for Achievements */}
+                            <div className="flex flex-wrap gap-1.5">
+                                {selectedCoachHighlights.achievements.map((ach, i) => {
+                                    // Extract key phrase for shorter chip if possible, else use full string
+                                    const shortAch = ach.split(',')[0].split('with')[0].trim();
+                                    return (
+                                        <div key={i} className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-md px-2 py-1">
+                                            <Award size={9} className="text-amber-400/70" />
+                                            <span className="text-[9px] text-slate-300 whitespace-nowrap">{shortAch}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
+
                             {selectedCoach.languages.length > 0 && (
-                                <div className="flex items-center gap-1.5 mt-3 pt-2 border-t border-white/5">
-                                    <Globe size={10} className="text-slate-500" />
-                                    <span className="text-[10px] text-slate-500">
-                                        {selectedCoach.languages.map(l => LANGUAGE_FLAGS[l] || l).join('  ')}
+                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+                                    <div className="flex items-center gap-1.5">
+                                        <Globe size={11} className="text-slate-500" />
+                                        <span className="text-[10px] text-slate-400 font-medium">Languages</span>
+                                    </div>
+                                    <span className="text-[11px]">
+                                        {selectedCoach.languages.map(l => LANGUAGE_FLAGS[l] || l).join(' ')}
                                     </span>
                                 </div>
                             )}
                         </div>
                     )}
+                </div>
 
-                    <div className="flex-1" />
-
-                    {/* ═══ SUMMARY ═══ */}
-                    <div className="bg-[#0B101B] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden shrink-0">
+                {/* ═══ FIXED BOTTOM SUMMARY ═══ */}
+                <div className="shrink-0 p-5 pt-0 border-t border-white/5 bg-[#080C14] relative z-10 before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-t before:from-[#080C14] before:to-transparent">
+                    <div className="bg-[#0B101B] border border-white/10 rounded-2xl p-5 shadow-[0_-5px_30px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden">
                         {effectiveFormat === 'individual'
                             ? <div className="absolute -top-20 -right-20 w-40 h-40 bg-violet-500/10 blur-[60px] rounded-full" />
                             : <div className="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/10 blur-[60px] rounded-full" />
@@ -442,7 +553,7 @@ const StandardPlanPage: React.FC<{
                                 <h3 className="text-white font-bold font-display text-sm uppercase tracking-wider">Summary</h3>
                             </div>
 
-                            <div className="space-y-2 mb-4 text-xs">
+                            <div className="space-y-1.5 mb-3 text-xs">
                                 {selectedSlot ? (
                                     <>
                                         <SummaryRow label="Lesson" value={selectedSlot.topic} truncate />
@@ -451,41 +562,62 @@ const StandardPlanPage: React.FC<{
                                             new Date(selectedSlot.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
                                         } />
                                         <SummaryRow label="Time" value={getLocalTime(selectedSlot.time, selectedSlot.date, timezone) + ` (${getTimezoneOffset(timezone)})`} />
-                                        <SummaryRow label="Format" value={selectedSlot.format === 'group' ? 'Group (max 4)' : 'Individual 1:1'} />
                                         {futureSessions.length > 0 && (
-                                            <SummaryRow label="Next session" value={
+                                            <SummaryRow label="Next" value={
                                                 new Date(futureSessions[0].date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                                                 + ' at ' + getLocalTime(futureSessions[0].time, futureSessions[0].date, timezone)
                                             } />
                                         )}
                                     </>
                                 ) : (
-                                    <SummaryRow label="Lesson" value="Not selected" warn />
+                                    <SummaryRow label="Lessons" value="Not selected" warn />
                                 )}
 
-                                {/* Pricing */}
-                                <div className="border-t border-white/5 pt-2 mt-3">
-                                    {currentPricing ? (
+                                {/* Pricing Options Toggle */}
+                                <div className="border-t border-white/5 pt-3 mt-3">
+                                    <div className="flex gap-2 mb-3 bg-white/5 p-1 rounded-lg border border-white/5">
+                                        <button
+                                            onClick={() => setBillingInterval('monthly')}
+                                            className={`flex-1 text-[11px] font-bold py-1.5 rounded-md transition-all ${billingInterval === 'monthly' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                        >
+                                            Monthly
+                                        </button>
+                                        <button
+                                            onClick={() => setBillingInterval('yearly')}
+                                            className={`flex-1 text-[11px] font-bold py-1.5 rounded-md transition-all ${billingInterval === 'yearly' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                        >
+                                            Yearly (Save)
+                                        </button>
+                                    </div>
+
+                                    {selectedSlot ? (
                                         <>
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="text-slate-400">Price</span>
-                                                <span className="text-lg font-bold text-white">
-                                                    {currentPricing.currency}{currentPricing.monthly}<span className="text-[10px] text-slate-500 font-normal">/mo</span>
+                                                <span className="text-lg font-bold text-white flex items-end gap-1">
+                                                    {currentPricing?.currency}{billingInterval === 'yearly' ? (effectiveFormat === 'individual' ? 149 : 89) : currentPricing?.monthly}
+                                                    <span className="text-[10px] text-slate-500 font-normal pb-0.5">/mo</span>
                                                 </span>
                                             </div>
-                                            {hasTrial && (
-                                                <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2.5 py-1.5 mt-2">
-                                                    <Zap size={11} className="text-emerald-400 shrink-0" />
-                                                    <span className="text-[10px] text-emerald-300 font-medium">
-                                                        7-day free trial — no charge today
-                                                    </span>
-                                                </div>
-                                            )}
+                                            <div className="text-[10px] text-slate-400 mt-0.5 flex items-center justify-between">
+                                                <span>{billingInterval === 'yearly' ? 'billed annually' : 'billed monthly'}</span>
+                                                {billingInterval === 'yearly' ? (
+                                                    <span className="text-emerald-400 font-medium">Best value (save €120)</span>
+                                                ) : (
+                                                    <span>Full flexibility (cancel anytime)</span>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2.5 py-1.5 mt-3">
+                                                <Zap size={11} className="text-emerald-400 shrink-0" />
+                                                <span className="text-[10px] text-emerald-300 font-medium">
+                                                    {(effectiveFormat === 'individual' && billingInterval === 'yearly') ? '7-day money-back guarantee' : '7-day free trial — no charge today'}
+                                                </span>
+                                            </div>
                                         </>
                                     ) : (
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-slate-400">Total</span>
-                                            <span className="text-lg font-bold text-white">—</span>
+                                        <div className="flex justify-between items-center text-slate-500 text-[10px]">
+                                            <span>Select a lesson for pricing</span>
                                         </div>
                                     )}
                                 </div>
@@ -494,8 +626,8 @@ const StandardPlanPage: React.FC<{
                             <Button size="lg" fullWidth
                                 themeColor={effectiveFormat === 'individual' ? '#8B5CF6' : '#F59E0B'}
                                 onClick={handleCheckout} disabled={!canProceed}
-                                className={!canProceed ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-lg'}>
-                                {selectedSlot ? (hasTrial ? 'Start Free Trial' : 'Subscribe') : 'Select Lesson'}
+                                className={!canProceed ? 'opacity-50 cursor-not-allowed' : `hover:scale-[1.02] active:scale-[0.98] transition-transform ${effectiveFormat === 'individual' ? 'hover-glow-violet-strong' : 'hover-glow-amber-strong'}`}>
+                                {selectedSlot ? ((effectiveFormat === 'individual' && billingInterval === 'yearly') ? 'Start Yearly Plan' : 'Start Free Trial') : 'Select Lesson'}
                             </Button>
 
                             {missingHints.length > 0 && (
@@ -575,22 +707,25 @@ const ScheduleCard: React.FC<{
 
     return (
         <button onClick={onSelect}
-            className={`w-full text-left p-3 rounded-xl border relative overflow-hidden group ${isSelected
+            className={`w-full text-left p-3 rounded-xl border relative hover:z-10 overflow-hidden group transition-all duration-300 ${isSelected
                 ? isIndividual
                     ? 'bg-violet-500/10 border-violet-500/40 hover-glow-violet-strong'
                     : 'bg-amber-500/10 border-amber-500/40 hover-glow-amber-strong'
-                : 'bg-white/[0.02] border-white/5 hover-glow-white-strong'
+                : 'bg-[#0B101B] border-white/5 hover-glow-white-strong hover:bg-[#0B101B]/90'
                 }`}>
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 relative z-10">
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1.5">
                         <span className="text-white font-bold text-sm font-display">{localTime}</span>
-                        <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase ${isIndividual ? 'bg-violet-500/20 text-violet-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                            {isIndividual ? '1:1' : 'Group'}
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wide ${isIndividual ? 'bg-violet-500/20 text-violet-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                            {isIndividual ? '1:1 Session' : 'Group'}
                         </span>
-                        {slot.isEntryPoint && <Star size={10} className="text-amber-400" fill="currentColor" />}
+                        <span className="text-[10px] font-bold text-amber-500/90 tracking-wide uppercase ml-1">
+                            Lesson {slot.lessonNumber}
+                        </span>
+                        {slot.isEntryPoint && <Star size={10} className="text-amber-400 ml-auto" fill="currentColor" />}
                     </div>
-                    <div className="text-xs text-slate-200 font-medium leading-snug group-hover:text-white transition-colors mb-2">{slot.topic}</div>
+                    <div className="text-sm text-slate-200 font-medium leading-snug group-hover:text-white transition-colors mb-2 pr-4">{slot.topic}</div>
                     {coach && (
                         <div className="flex items-center gap-1.5 mb-1.5">
                             <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-[9px] text-white font-bold ring-1 ring-white/10">
@@ -628,12 +763,15 @@ const ScheduleCard: React.FC<{
 };
 
 /* ─── Small UI Helpers ──────────────────────────── */
-const ProfileTag: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-    <div className="flex items-center gap-2 text-[10px]">
-        <span className="text-slate-500 uppercase font-bold tracking-wider w-12 shrink-0">{label}</span>
-        <span className="text-slate-300 truncate">{value}</span>
-    </div>
-);
+const ProfileTag: React.FC<{ value: string; highlight?: string }> = ({ value, highlight }) => {
+    const isViolet = highlight === 'individual';
+    const isAmber = highlight === 'group';
+    return (
+        <div className={`text-[9px] font-bold px-2 py-1 rounded border ${isViolet ? 'bg-violet-500/10 border-violet-500/20 text-violet-300' : isAmber ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-white/5 border-white/10 text-slate-300'}`}>
+            {value}
+        </div>
+    );
+};
 
 const SummaryRow: React.FC<{ label: string; value: string; warn?: boolean; truncate?: boolean }> = ({ label, value, warn, truncate }) => (
     <div className="flex justify-between items-center gap-2">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Check, Trash2, Clock } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import Button from '../ui/Button';
 import { FONTS } from '../../constants/theme';
 import { TIMEZONES } from '../coaching/TimeZoneUtils';
@@ -12,35 +12,47 @@ interface ManualInputsModalProps {
     theme: { color: string };
     connections?: { chessCom: boolean; lichess: boolean; masterDb: boolean };
     openConnectModal?: (platform: 'chessCom' | 'lichess' | 'masterDb') => void;
+    disconnectPlatform?: (platform: 'chessCom' | 'lichess' | 'masterDb') => void;
 }
 
-interface TimeSlot {
-    day: string;
-    time: string;
-}
 
 // TIMEZONES imported from TimeZoneUtils
 
 const LANGUAGES = ["English", "Ukrainian", "Polish", "Chinese", "Spanish", "French", "German"];
 
-const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, onSave, canSkip = false, theme, connections, openConnectModal }) => {
+const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, onSave, canSkip = false, theme, connections, openConnectModal, disconnectPlatform }) => {
     const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
-    const [coachingType, setCoachingType] = useState<'individual' | 'group'>('individual');
+    const [coachingType, setCoachingType] = useState<'individual' | 'group'>('group');
 
     // Form States
-    const [timezone, setTimezone] = useState(TIMEZONES[12]?.value || 'Europe/Warsaw');
+    const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Warsaw');
     const [primaryLang, setPrimaryLang] = useState("English");
     const [secondaryLang, setSecondaryLang] = useState("None");
     const [level, setLevel] = useState("Intermediate (800-1200)");
     const [studentAge, setStudentAge] = useState('');
 
-    // Availability
-    const [availability, setAvailability] = useState<TimeSlot[]>([
-        { day: 'Mon, Wed, Fri', time: '18:00 - 20:00' } // Default example
-    ]);
-    const [isAddingSlot, setIsAddingSlot] = useState(false);
-    const [newSlotDay, setNewSlotDay] = useState("Monday");
-    const [newSlotTime, setNewSlotTime] = useState("18:00");
+
+
+    // Load existing profile when modal opens
+    React.useEffect(() => {
+        if (isOpen) {
+            try {
+                const raw = localStorage.getItem('wk_coaching_profile');
+                if (raw) {
+                    const profile = JSON.parse(raw);
+                    if (profile.selectedGoals) setSelectedGoals(profile.selectedGoals);
+                    if (profile.coachingType) setCoachingType(profile.coachingType);
+                    if (profile.timezone) setTimezone(profile.timezone);
+                    if (profile.primaryLang) setPrimaryLang(profile.primaryLang);
+                    if (profile.secondaryLang) setSecondaryLang(profile.secondaryLang);
+                    if (profile.level) setLevel(profile.level);
+                    if (profile.studentAge) setStudentAge(profile.studentAge);
+                }
+            } catch (e) {
+                console.error("Error loading coaching profile:", e);
+            }
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -52,40 +64,11 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
         }
     };
 
-    const handleAddSlot = () => {
-        setAvailability([...availability, { day: newSlotDay, time: newSlotTime }]);
-        setIsAddingSlot(false);
-    };
-
-    const removeSlot = (index: number) => {
-        setAvailability(availability.filter((_, i) => i !== index));
-    };
-
-    // Calculate Pricing Display
-    const getPricingDisplay = () => {
-        if (coachingType === 'group') {
-            return (
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
-                    <div className="text-sm text-slate-400 mb-1">Group Subscription</div>
-                    <div className="text-xl font-bold text-white">€99 <span className="text-xs font-normal text-slate-500">/ mo</span></div>
-                    <div className="text-xs text-slate-500 mt-1">or €990 / yr (Save 17%)</div>
-                </div>
-            );
-        } else {
-            return (
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
-                    <div className="text-sm text-slate-400 mb-1">Standard Rate</div>
-                    <div className="text-xl font-bold text-white">€29 <span className="text-xs font-normal text-slate-500">/ lesson</span></div>
-                    <div className="text-xs text-slate-500 mt-1">Pay per session (50 min)</div>
-                </div>
-            );
-        }
-    };
 
     const saveProfile = () => {
         // Here we would save to localStorage/Cookie
         const profile = {
-            timezone, primaryLang, secondaryLang, level, selectedGoals, availability, coachingType, studentAge,
+            timezone, primaryLang, secondaryLang, level, selectedGoals, coachingType, studentAge,
             chessComLinked: connections?.chessCom || false,
             lichessLinked: connections?.lichess || false
         };
@@ -161,15 +144,15 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
                         <div className="space-y-2">
                             <label className={FONTS.label}>Connect Platforms</label>
                             <div className="flex gap-2">
-                                <button onClick={() => openConnectModal?.('chessCom')}
-                                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.chessCom ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
+                                <button onClick={() => connections?.chessCom ? disconnectPlatform?.('chessCom') : openConnectModal?.('chessCom')}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.chessCom ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
                                     <div className={`w-2 h-2 rounded-full ${connections?.chessCom ? 'bg-emerald-500' : 'bg-slate-600'}`} />
-                                    Chess.com
+                                    {connections?.chessCom ? 'Connected' : 'Chess.com'}
                                 </button>
-                                <button onClick={() => openConnectModal?.('lichess')}
-                                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.lichess ? 'bg-white/10 border-white/40 text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
-                                    <div className={`w-2 h-2 rounded-full ${connections?.lichess ? 'bg-white' : 'bg-slate-600'}`} />
-                                    Lichess
+                                <button onClick={() => connections?.lichess ? disconnectPlatform?.('lichess') : openConnectModal?.('lichess')}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${connections?.lichess ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}>
+                                    <div className={`w-2 h-2 rounded-full ${connections?.lichess ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                                    {connections?.lichess ? 'Connected' : 'Lichess'}
                                 </button>
                             </div>
                         </div>
@@ -177,9 +160,9 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
 
                     {/* Section 2: Goals */}
                     <div>
-                        <label className={FONTS.label}>Training Goals <span className="text-red-400">*</span></label>
+                        <label className={FONTS.label}>Training Goals</label>
                         <div className="flex flex-wrap gap-2 mt-2">
-                            {['Improve Tactics', 'Opening Repertoire', 'Endgame Mastery', 'Tournament Prep', 'Chess960', 'Psychology', 'Other'].map(goal => (
+                            {['How the Pieces Move', 'Improve Tactics', 'Opening Repertoire', 'Endgame Mastery', 'Tournament Prep', 'Chess960', 'Psychology', 'Other'].map(goal => (
                                 <div
                                     key={goal}
                                     onClick={() => toggleGoal(goal)}
@@ -193,66 +176,25 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
                         </div>
                     </div>
 
-                    {/* Section 3: Availability & Coaching */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className={FONTS.label}>Weekly Availability</label>
-                            <div className="bg-[#080C14] border border-white/10 rounded-lg p-4 space-y-2 min-h-[140px]">
-                                {availability.map((slot, idx) => (
-                                    <div key={idx} className="flex justify-between items-center text-sm text-slate-300 bg-white/5 p-2 rounded group">
-                                        <div className="flex gap-2 items-center">
-                                            <Clock size={14} className="text-slate-500" />
-                                            <span>{slot.day}</span>
-                                            <span className="text-slate-500">|</span>
-                                            <span>{slot.time}</span>
-                                        </div>
-                                        <button onClick={() => removeSlot(idx)} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
+                    {/* Section 3: Coaching */}
+                    <div className="space-y-4">
+                        <div>
+                            <label className={FONTS.label}>Coaching Preference</label>
+                            <div className="flex gap-4 mt-2">
+                                <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer group">
+                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${coachingType === 'group' ? 'border-violet-500' : 'border-slate-500'}`}>
+                                        {coachingType === 'group' && <div className="w-2 h-2 rounded-full bg-violet-500" />}
                                     </div>
-                                ))}
-
-                                {isAddingSlot ? (
-                                    <div className="bg-white/5 p-2 rounded border border-white/10 animate-in fade-in">
-                                        <select className="w-full bg-[#0F1623] text-xs text-white p-1 rounded mb-2 border border-white/10" value={newSlotDay} onChange={e => setNewSlotDay(e.target.value)}>
-                                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => <option key={d}>{d}</option>)}
-                                        </select>
-                                        <input type="time" className="w-full bg-[#0F1623] text-xs text-white p-1 rounded mb-2 border border-white/10" value={newSlotTime} onChange={e => setNewSlotTime(e.target.value)} />
-                                        <div className="flex gap-2">
-                                            <Button size="sm" fullWidth onClick={handleAddSlot}>Add</Button>
-                                            <Button size="sm" variant="secondary" fullWidth onClick={() => setIsAddingSlot(false)}>Cancel</Button>
-                                        </div>
+                                    <input type="radio" className="hidden" checked={coachingType === 'group'} onChange={() => setCoachingType('group')} />
+                                    Group (Max 4)
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer group">
+                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${coachingType === 'individual' ? 'border-violet-500' : 'border-slate-500'}`}>
+                                        {coachingType === 'individual' && <div className="w-2 h-2 rounded-full bg-violet-500" />}
                                     </div>
-                                ) : (
-                                    <div onClick={() => setIsAddingSlot(true)} className="border border-dashed border-white/10 rounded-lg p-2 flex items-center justify-center text-slate-500 text-xs cursor-pointer hover:bg-white/5 transition-colors">
-                                        <Plus size={14} className="mr-1" /> Add time slot
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className={FONTS.label}>Coaching Preference</label>
-                                <div className="flex gap-4 mt-2">
-                                    <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer group">
-                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${coachingType === 'group' ? 'border-violet-500' : 'border-slate-500'}`}>
-                                            {coachingType === 'group' && <div className="w-2 h-2 rounded-full bg-violet-500" />}
-                                        </div>
-                                        <input type="radio" className="hidden" checked={coachingType === 'group'} onChange={() => setCoachingType('group')} />
-                                        Group (Max 4)
-                                    </label>
-                                    <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer group">
-                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${coachingType === 'individual' ? 'border-violet-500' : 'border-slate-500'}`}>
-                                            {coachingType === 'individual' && <div className="w-2 h-2 rounded-full bg-violet-500" />}
-                                        </div>
-                                        <input type="radio" className="hidden" checked={coachingType === 'individual'} onChange={() => setCoachingType('individual')} />
-                                        Individual
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className={FONTS.label + " mb-2 block"}>Estimated Price</label>
-                                {getPricingDisplay()}
+                                    <input type="radio" className="hidden" checked={coachingType === 'individual'} onChange={() => setCoachingType('individual')} />
+                                    Individual
+                                </label>
                             </div>
                         </div>
                     </div>
