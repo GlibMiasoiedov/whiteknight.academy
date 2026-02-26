@@ -30,11 +30,11 @@ const StatRoseChart = ({
     stats,
     idPrefix = ''
 }: StatRoseChartProps) => {
-    const size = 650;
+    const size = 600; // Scaled down 30% for compact view
     const center = size / 2;
-    const maxRadius = 200; // Decreased radius to prevent label overflow on mobile
+    const maxRadius = 190; // Scaled down 30%
     const sliceAngle = 360 / stats.length;
-    const depth = 20;
+    const depth = 20; // Thinner 3D depth
 
     const getCoordinatesForAngle = (angle: number, radius: number) => {
         const angleInRadians = (angle - 90) * (Math.PI / 180.0);
@@ -46,9 +46,8 @@ const StatRoseChart = ({
 
     return (
         <div className="relative w-full h-full flex items-center justify-center select-none group perspective-1000">
-            {/* Background Glow */}
-            {/* Background Glow - Removed to prevent hard edge artifact */}
-            {/* <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/10 via-transparent to-transparent rounded-full blur-[80px] pointer-events-none" /> */}
+            {/* Ambient Center Glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.08),transparent_60%)] rounded-full pointer-events-none" />
 
             <div className="relative w-full max-w-[750px] aspect-square transition-transform duration-500 md:hover:scale-[1.02]">
                 <svg
@@ -137,7 +136,7 @@ const StatRoseChart = ({
                     {/* Labels */}
                     {stats.map((stat, i) => {
                         const angle = i * sliceAngle + sliceAngle / 2;
-                        const labelRadius = maxRadius + 30; // Closer labels
+                        const labelRadius = maxRadius + 30; // Closer clearance
                         const pos = getCoordinatesForAngle(angle, labelRadius);
 
                         const isActive = activeSlice === stat.id;
@@ -149,6 +148,7 @@ const StatRoseChart = ({
                                 key={`label-${i}`}
                                 onMouseEnter={() => onHover(stat.id)}
                                 onMouseLeave={() => onHover(null)}
+                                onClick={() => onClick(stat.id)}
                                 className="cursor-pointer transition-all duration-300"
                                 style={{ opacity: activeSlice && !isActive ? 0.3 : 1 }}
                             >
@@ -157,12 +157,12 @@ const StatRoseChart = ({
 
                                 <text
                                     x={pos.x} y={pos.y - 8} textAnchor="middle" dominantBaseline="middle" fill={isActive ? 'white' : '#94A3B8'}
-                                    className={`text-xs md:text-sm font-bold uppercase tracking-widest ${isHighlighted ? 'font-extrabold drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : ''}`}
-                                    style={{ textShadow: isHighlighted ? `0 0 15px ${stat.gradientFrom}` : 'none' }}
+                                    className={`text-[12px] md:text-[14px] xl:text-base font-bold uppercase tracking-[0.1em] ${isHighlighted ? 'font-extrabold drop-shadow-[0_0_10px_rgba(255,255,255,0.6)]' : ''}`}
+                                    style={{ textShadow: isHighlighted ? `0 0 12px ${stat.gradientFrom}` : 'none' }}
                                 >{stat.label}</text>
                                 <text
-                                    x={pos.x} y={pos.y + 12} textAnchor="middle" dominantBaseline="middle" fill={isHighlighted ? stat.gradientFrom : '#64748B'}
-                                    className={`text-sm md:text-base font-bold font-display`}
+                                    x={pos.x} y={pos.y + 14} textAnchor="middle" dominantBaseline="middle" fill={isHighlighted ? stat.gradientFrom : '#64748B'}
+                                    className={`text-[15px] md:text-lg xl:text-xl font-bold font-display`}
                                 >{stat.score}/100</text>
 
                                 {/* Underline for active state */}
@@ -182,10 +182,10 @@ const StatRoseChart = ({
 
                     {activeSlice ? (
                         <g>
-                            <text x={center} y={center - 5} textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="24" fontWeight="bold">
+                            <text x={center} y={center - 4} textAnchor="middle" dominantBaseline="middle" fill="white" fontSize="22" fontWeight="bold">
                                 {stats.find(s => s.id === activeSlice)?.score}
                             </text>
-                            <text x={center} y={center + 15} textAnchor="middle" dominantBaseline="middle" fill="#94A3B8" fontSize="10" fontWeight="bold" letterSpacing="1">
+                            <text x={center} y={center + 16} textAnchor="middle" dominantBaseline="middle" fill="#94A3B8" fontSize="10" fontWeight="bold" letterSpacing="1">
                                 SCORE
                             </text>
                         </g>

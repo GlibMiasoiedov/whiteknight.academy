@@ -4,7 +4,7 @@
 
 $localAnalyticsDir = "$PSScriptRoot\..\analytics"
 
-function Download-FtpDirectory {
+function Invoke-FtpDirectoryDownload {
     param (
         [string]$FtpPath,
         [string]$LocalPath
@@ -27,7 +27,7 @@ function Download-FtpDirectory {
         
         if ($testOutput -and $testOutput -notmatch "curl:") {
             Write-Host "  [DIR] $item" -ForegroundColor Cyan
-            Download-FtpDirectory -FtpPath "$ftpItemPath/" -LocalPath $localItemPath
+            Invoke-FtpDirectoryDownload -FtpPath "$ftpItemPath/" -LocalPath $localItemPath
         }
         else {
             Write-Host "  [FILE] $item" -ForegroundColor Green
@@ -38,6 +38,6 @@ function Download-FtpDirectory {
 }
 
 Write-Host "Syncing analytics subdomain from server..." -ForegroundColor Cyan
-Download-FtpDirectory -FtpPath "/analytics/" -LocalPath $localAnalyticsDir
+Invoke-FtpDirectoryDownload -FtpPath "/analytics/" -LocalPath $localAnalyticsDir
 
 Write-Host "`nSync complete!" -ForegroundColor Green

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import {
-    BookOpen, Calendar, User, Video, MessageSquare, Mail, FileText, HeartPulse, Users, ListChecks, HelpCircle, ArrowUpRight, Lock, Target, RefreshCw, Upload, Brain
+    BookOpen, Calendar, User, Video, MessageSquare, Mail, FileText, HeartPulse, Users, ListChecks, HelpCircle, ArrowUpRight, Lock, Target, Brain
 } from 'lucide-react';
 import { ChessComLogo, LichessLogo, MasterDBLogo } from '../ui/Logos';
 import Button from '../ui/Button';
@@ -8,6 +8,7 @@ import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import ProgressBar from '../ui/ProgressBar';
 import { DASHBOARD_FONTS } from '../../constants/theme';
+import ReportDashboard from '../report/ReportDashboard';
 
 interface CenterColumnProps {
     connections: { chessCom: boolean; lichess: boolean; masterDb: boolean };
@@ -22,6 +23,8 @@ interface CenterColumnProps {
     onJoinCoaching: () => void;
     isMatchSettingsSet: boolean;
     onOpenBooking: () => void;
+    onReportActiveSliceChange?: (sliceId: string | null) => void;
+    onReportWidgetHint?: (hintKey: string | null, data?: any) => void;
 }
 
 export interface UserProfile {
@@ -33,7 +36,7 @@ export interface UserProfile {
     selectedGoals?: string[];
 }
 
-const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet, onOpenBooking }) => {
+const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet, onOpenBooking, onReportActiveSliceChange, onReportWidgetHint }) => {
     // Determine if we show State B (Connected/Matched — has actual data)
     const isConnected = Object.values(connections).some(Boolean);
     const showStateB = isConnected || isMatchSettingsSet;
@@ -442,70 +445,13 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
 
     // Extracted render methods
     const renderReportTab = (showStateB: boolean, theme: any) => (
-        <div className="space-y-8 animate-in fade-in">
-            <div className="flex justify-between items-end border-b border-white/5 pb-6">
-                <div>
-                    <h1 className={DASHBOARD_FONTS.h1}>{showStateB ? "Deep Dive Analysis" : "Report Locked"}</h1>
-                    <p className={DASHBOARD_FONTS.body}>{showStateB ? "Generated Today • Based on last 50 games" : "Connect your chess account on the Home screen to generate your analysis."}</p>
-                </div>
-                {showStateB && (
-                    <div className="flex gap-2">
-                        <Button variant="secondary" icon={Upload}>Export PDF</Button>
-                        <Button themeColor={theme.color} icon={RefreshCw}>Refresh</Button>
-                    </div>
-                )}
-            </div>
-
-            {showStateB ? (
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 xl:gap-6">
-                    <Card className="bg-gradient-to-br from-[#0F1623] to-[#0B1220]">
-                        <div className={DASHBOARD_FONTS.label + " mb-3 xl:mb-4"}>Accuracy</div>
-                        <div className="flex items-center gap-4">
-                            <div className="relative w-24 h-24">
-                                <svg viewBox="0 0 36 36" className="w-full h-full rotate-[-90deg]">
-                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1E293B" strokeWidth="3" />
-                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={theme.color} strokeWidth="3" strokeDasharray="78, 100" />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center font-bold text-white text-xl">78%</div>
-                            </div>
-                            <div>
-                                <div className="text-emerald-400 text-sm font-bold flex items-center mb-1"><ArrowUpRight size={14} className="mr-1" /> +4.2%</div>
-                                <div className="text-xs text-slate-500">vs last week</div>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card>
-                        <div className={DASHBOARD_FONTS.label + " mb-3 xl:mb-4"}>Game Phases</div>
-                        <div className="space-y-4">
-                            {[{ l: "Opening", v: 92, c: "#10B981" }, { l: "Middlegame", v: 65, c: "#F59E0B" }, { l: "Endgame", v: 45, c: "#EF4444" }].map((p, i) => (
-                                <div key={i}>
-                                    <div className="flex justify-between text-xs text-slate-300 mb-1"><span>{p.l}</span><span>{p.v}%</span></div>
-                                    <ProgressBar current={p.v} max={100} color={p.c} />
-                                </div>
-                            ))}
-                        </div>
-                    </Card>
-                    <Card>
-                        <div className={DASHBOARD_FONTS.label + " mb-3 xl:mb-4"}>Key Mistakes</div>
-                        <ul className="space-y-3">
-                            {[{ t: "Blunders", c: 4, color: "text-red-400" }, { t: "Missed Wins", c: 2, color: "text-amber-400" }, { t: "Inaccuracies", c: 12, color: "text-blue-400" }].map((err, i) => (
-                                <li key={i} className="flex justify-between items-center p-2 rounded bg-white/5 border border-white/5">
-                                    <span className="text-sm text-slate-300">{err.t}</span><span className={`font-bold ${err.color}`}>{err.c}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </Card>
-                </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center text-center py-20">
-                    <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center mb-6 border border-emerald-500/20">
-                        <Lock size={32} className="text-emerald-500" />
-                    </div>
-                    <h2 className={DASHBOARD_FONTS.h2 + " mb-2"}>Analysis Unavailable</h2>
-                    <p className={DASHBOARD_FONTS.body + " max-w-md mb-8"}>Please connect your chess accounts on the Home screen to unlock your detailed performance report.</p>
-                </div>
-            )}
-        </div>
+        <ReportDashboard
+            showStateB={showStateB}
+            theme={theme}
+            onUpgradeClick={onUpgradeClick}
+            onActiveSliceChange={onReportActiveSliceChange}
+            onWidgetHint={(hint, data) => onReportWidgetHint?.(hint, data)}
+        />
     );
 
     // Integrations Tab
@@ -860,8 +806,15 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
     }
 
     return (
-        <div className="ml-[220px] xl:ml-[260px] mr-[280px] xl:mr-[340px] min-h-screen p-5 xl:p-8 bg-[#080C14]">
-            {activeTab === 'home' && <Header />}
+        <div className="flex-1 w-full min-h-screen pt-16 lg:pt-8 pb-12 px-4 lg:px-8 pl-4 lg:pl-8 2xl:pl-[300px] pr-4 lg:pr-[350px] transition-all duration-300 overflow-x-hidden">
+            {/* Conditional Rendering of Connect Banner VS Welcome Header */}
+            {activeTab === 'home' && !showStateB ? (
+                <div id="chess-connect" className="mb-8">
+                    <Header />
+                </div>
+            ) : (
+                activeTab === 'home' && <Header />
+            )}
             {renderTabContent()}
         </div>
     );

@@ -54,12 +54,12 @@ async function deploy() {
 
         // CREATE CACHE BUSTER COPY
         // Copy app.html (which was index.html) to v170.html
-        console.log("Creating v170.html alias for cache busting...");
+        console.log("Creating v229.html alias for cache busting...");
         try {
             // Fix Windows path issue: explicit forward slashes for FTP
-            const v170Path = REMOTE_ROOT + '/v170.html';
-            console.log(`Uploading to: ${v170Path}`);
-            await client.uploadFrom(distApp, v170Path);
+            const v229Path = REMOTE_ROOT + '/v229.html';
+            console.log(`Uploading to: ${v229Path}`);
+            await client.uploadFrom(distApp, v229Path);
         } catch (e) {
             console.error("Failed to create alias:", e);
         }
