@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Upload, RefreshCw, Lock, ArrowUpRight, ChevronDown, Filter, Crosshair } from 'lucide-react';
+import { Upload, RefreshCw, Lock, ArrowUpRight, ChevronDown, Filter, Crosshair, Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -191,7 +191,7 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
             <div className="ml-auto">
                 <button
                     onClick={() => setIsFiltersDrawerOpen(true)}
-                    className="bg-violet-600/20 hover:bg-violet-600 text-violet-400 hover:text-white border border-violet-500/30 rounded-full px-4 py-1.5 text-xs font-bold transition-all flex items-center gap-2 hover-glow-violet-strong hover:-translate-y-0.5"
+                    className="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-full px-4 py-1.5 text-xs font-bold transition-all flex items-center gap-2 hover-glow-emerald-strong hover:-translate-y-0.5"
                 >
                     <Filter size={14} /> Advanced
                 </button>
@@ -305,9 +305,9 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                                     onActiveSliceChange?.(null);
                                     onWidgetHint?.('radar');
                                 }}
-                                className="px-3 py-1 bg-violet-600/20 text-violet-400 hover:bg-violet-600 hover:text-white border border-violet-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-violet-strong flex items-center gap-1.5"
+                                className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5"
                             >
-                                Insights
+                                <Sparkles className="w-3 h-3" /> Insights
                             </button>
                         </div>
                     </div>

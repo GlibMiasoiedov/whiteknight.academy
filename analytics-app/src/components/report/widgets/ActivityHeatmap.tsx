@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import Card from '../../ui/Card';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
-import { Activity } from 'lucide-react';
+import { Activity, Sparkles } from 'lucide-react';
 
 interface ActivityHeatmapProps {
     onHint?: (data?: any) => void;
@@ -150,7 +150,7 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
     };
 
     return (
-        <Card className="flex flex-col bg-gradient-to-br from-[#0F1623] to-[#0B1220] border-white/5 hover:shadow-xl transition-all duration-300 relative group">
+        <Card className="flex flex-col bg-gradient-to-br from-[#0F1623] to-[#0B1220] border-white/5 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 relative group">
             {/* Ambient Background Glow */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(52,211,153,0.05),transparent_60%)] pointer-events-none rounded-xl overflow-hidden" />
 
@@ -164,9 +164,9 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
                     {onHint && (
                         <button
                             onClick={handleHintClick}
-                            className="px-3 py-1 bg-violet-600/20 text-violet-300 hover:bg-violet-600 hover:text-white border border-violet-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-violet-strong"
+                            className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5"
                         >
-                            Insights
+                            <Sparkles className="w-3 h-3" /> Insights
                         </button>
                     )}
                 </div>
@@ -370,7 +370,7 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
                 {/* Global React Portal Tooltip */}
                 {hoveredCell && (
                     <div
-                        className="fixed z-[99999] pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95 bg-white text-slate-900 text-[11px] px-3 py-2 rounded shadow-2xl whitespace-nowrap flex flex-col border border-slate-200"
+                        className="fixed z-[99999] pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95 bg-[#0F1623]/95 backdrop-blur-md text-white text-[11px] px-3 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] whitespace-nowrap flex flex-col border border-emerald-500/30"
                         style={{
                             left: `${hoveredCell.type === 'day' ? hoveredCell.x + 12 : hoveredCell.x}px`,
                             top: `${hoveredCell.type === 'day' ? hoveredCell.y + 12 : hoveredCell.y - 8}px`, // Shift top up slightly for cell/hour to have margin
@@ -392,13 +392,13 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
 
                         {/* Value line */}
                         <div className="flex items-center gap-3">
-                            <span className="text-slate-900 font-black">{hoveredCell.d.total} games</span>
+                            <span className="text-white font-black">{hoveredCell.d.total} games</span>
                             {hoveredCell.d.total > 0 && (
                                 <div className="flex items-center gap-1.5 text-[10px] font-bold">
                                     <span className="text-emerald-500">{hoveredCell.d.wins}W</span>
                                     <span className="text-slate-400">{hoveredCell.d.draws}D</span>
                                     <span className="text-rose-500">{hoveredCell.d.losses}L</span>
-                                    <span className="ml-1 text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded-sm">
+                                    <span className="ml-1 text-slate-300 bg-white/10 px-1.5 py-0.5 rounded-sm">
                                         WR: {Math.round((hoveredCell.d.wins / hoveredCell.d.total) * 100)}%
                                     </span>
                                 </div>
@@ -407,7 +407,7 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
 
                         {/* Arrow Pointer */}
                         <div
-                            className={`absolute border-[5px] border-transparent ${hoveredCell.type === 'day' ? 'top-1/2 right-full -translate-y-1/2 border-r-white' : 'top-full left-1/2 -translate-x-1/2 border-t-white'}`}
+                            className={`absolute border-[5px] border-transparent ${hoveredCell.type === 'day' ? 'top-1/2 right-full -translate-y-1/2 border-r-[#0F1623]' : 'top-full left-1/2 -translate-x-1/2 border-t-[#0F1623]'}`}
                         />
                     </div>
                 )}

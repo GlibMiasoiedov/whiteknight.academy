@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from '../../ui/Card';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
-import { Users } from 'lucide-react';
+import { Users, Sparkles } from 'lucide-react';
 
 interface OpponentData {
     name: string;
@@ -38,9 +38,9 @@ const TopOpponentsList: React.FC<TopOpponentsListProps> = ({ onHint, onViewAll }
                     {onHint && (
                         <button
                             onClick={onHint}
-                            className="px-3 py-1 bg-violet-600/20 text-violet-400 hover:bg-violet-600 hover:text-white border border-violet-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-violet-strong flex items-center gap-1.5"
+                            className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5"
                         >
-                            Insights
+                            <Sparkles className="w-3 h-3" /> Insights
                         </button>
                     )}
                     {onViewAll && (

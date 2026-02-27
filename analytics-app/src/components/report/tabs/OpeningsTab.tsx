@@ -1,6 +1,7 @@
 import React from 'react';
 import MostPlayedOpenings from '../widgets/MostPlayedOpenings';
 import OpeningHealthSummary from './openings/OpeningHealthSummary';
+import OpeningSuccessRate from './openings/OpeningSuccessRate';
 
 interface OpeningsTabProps {
     onHint?: (hintKey: string, data?: any) => void;
@@ -17,6 +18,8 @@ const OpeningsTab: React.FC<OpeningsTabProps> = ({ onHint }) => {
             </div>
 
             <OpeningHealthSummary />
+
+            <OpeningSuccessRate onHint={() => onHint?.('opening_success_rate')} />
 
             <MostPlayedOpenings
                 onHintWhite={() => onHint?.('openings_white')}

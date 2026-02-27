@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../../ui/Card';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
+import { Sparkles } from 'lucide-react';
 
 interface OpeningStats {
     eco: string;
@@ -64,9 +65,9 @@ const OpeningsTable: React.FC<{ title: React.ReactNode, data: OpeningStats[], on
                     {onHint && (
                         <button
                             onClick={onHint}
-                            className="px-3 py-1 bg-violet-600/20 text-violet-400 hover:bg-violet-600 hover:text-white border border-violet-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-violet-strong flex items-center gap-1.5"
+                            className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5"
                         >
-                            Insights
+                            <Sparkles className="w-3 h-3" /> Insights
                         </button>
                     )}
                     <button onClick={onToggleExpand} className="text-[10px] text-amber-500 hover:text-amber-400 uppercase tracking-wider font-bold transition-colors">
@@ -132,9 +133,9 @@ const OpeningsTable: React.FC<{ title: React.ReactNode, data: OpeningStats[], on
                                         <span className="text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.3)]">{row.loss}%</span>
                                     </div>
                                     <div className="w-full max-w-[150px] h-1.5 bg-white/5 rounded-full overflow-hidden flex ring-1 ring-white/5">
-                                        <div className="h-full bg-emerald-500 transition-all duration-500 group-hover:shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${row.win}%` }} />
-                                        <div className="h-full bg-slate-500 transition-all duration-500" style={{ width: `${row.draw}%` }} />
-                                        <div className="h-full bg-red-500 transition-all duration-500 group-hover:shadow-[0_0_10px_rgba(239,68,68,0.5)]" style={{ width: `${row.loss}%` }} />
+                                        <div className="h-full bg-emerald-500 transition-all duration-1000 group-hover:shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${row.win}%` }} />
+                                        <div className="h-full bg-slate-500 transition-all duration-1000" style={{ width: `${row.draw}%` }} />
+                                        <div className="h-full bg-red-500 transition-all duration-1000 group-hover:shadow-[0_0_10px_rgba(239,68,68,0.5)]" style={{ width: `${row.loss}%` }} />
                                     </div>
                                 </td>
                             </tr>

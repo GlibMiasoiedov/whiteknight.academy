@@ -92,7 +92,7 @@ const MyWidget: React.FC<MyWidgetProps> = ({ onHint }) => {
                         onClick={onHint}
                         className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5"
                     >
-                        Insights
+                        <Sparkles className="w-3 h-3" /> Insights
                     </button>
                 )}
             </div>
@@ -113,6 +113,8 @@ const MyWidget: React.FC<MyWidgetProps> = ({ onHint }) => {
 - [ ] Insights button: section theme color (report = emerald)
 - [ ] `hover:-translate-y-1 hover:shadow-xl transition-all duration-300`
 - [ ] `relative overflow-hidden group` if ambient glow needed
+- [ ] Insights button includes `<Sparkles className="w-3 h-3" />` icon
+- [ ] Add entry to `WIDGET_HINTS` in `RightPanel.tsx` (title, desc, weakness, strength, training)
 
 ## Input Styles — Conscious Choice
 

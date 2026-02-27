@@ -114,7 +114,7 @@ const DashboardLayout = () => {
     return (
         <div className="flex h-screen overflow-hidden font-sans bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white relative">
             <MobileGate />
-            <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.9.9 - 2026-02-21</div>
+            <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-10">v2.9.9 - 2026-02-21</div>
             <DevToolbar
                 setConnections={setConnections}
                 setDemoMode={setDemoMode}

@@ -39,7 +39,7 @@ const EloEstimateCard: React.FC<EloEstimateCardProps> = ({ onExplainElo }) => {
                     {onExplainElo && (
                         <button
                             onClick={onExplainElo}
-                            className="px-3 py-1.5 bg-violet-600/20 text-violet-300 hover:bg-violet-600 hover:text-white border border-violet-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-violet-strong flex items-center gap-1.5"
+                            className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5"
                         >
                             <HelpCircle size={13} />
                             Methodology

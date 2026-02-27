@@ -78,7 +78,7 @@ const ManualInputsModal: React.FC<ManualInputsModalProps> = ({ isOpen, onClose, 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
             <div className="w-[800px] max-h-[90vh] bg-[#0F1623] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
                 <div className="flex justify-between items-center px-6 py-4 border-b border-white/5 bg-[#080C14]">
                     <div>
