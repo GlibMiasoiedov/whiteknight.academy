@@ -25,6 +25,7 @@ interface CenterColumnProps {
     onOpenBooking: () => void;
     onReportActiveSliceChange?: (sliceId: string | null) => void;
     onReportWidgetHint?: (hintKey: string | null, data?: any) => void;
+    onReportActiveTabChange?: (tab: string) => void;
 }
 
 export interface UserProfile {
@@ -36,7 +37,7 @@ export interface UserProfile {
     selectedGoals?: string[];
 }
 
-const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet, onOpenBooking, onReportActiveSliceChange, onReportWidgetHint }) => {
+const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnection, theme, activeTab, onUpgradeClick, isDemoMode, openManualInputs, onNavigate, openModal, onJoinCoaching, isMatchSettingsSet, onOpenBooking, onReportActiveSliceChange, onReportWidgetHint, onReportActiveTabChange }) => {
     // Determine if we show State B (Connected/Matched — has actual data)
     const isConnected = Object.values(connections).some(Boolean);
     const showStateB = isConnected || isMatchSettingsSet;
@@ -451,6 +452,7 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
             onUpgradeClick={onUpgradeClick}
             onActiveSliceChange={onReportActiveSliceChange}
             onWidgetHint={(hint, data) => onReportWidgetHint?.(hint, data)}
+            onActiveTabChange={onReportActiveTabChange}
         />
     );
 
@@ -806,7 +808,7 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
     }
 
     return (
-        <div className="flex-1 w-full min-h-screen pt-16 lg:pt-8 pb-12 px-4 lg:px-8 pl-4 lg:pl-8 2xl:pl-[300px] pr-4 lg:pr-[350px] transition-all duration-300 overflow-x-hidden">
+        <div className="flex-1 w-full min-h-screen pt-16 lg:pt-8 pb-12 px-4 lg:px-8 pl-4 lg:pl-8 2xl:pl-[300px] pr-4 lg:pr-8 transition-all duration-300 overflow-x-hidden">
             {/* Conditional Rendering of Connect Banner VS Welcome Header */}
             {activeTab === 'home' && !showStateB ? (
                 <div id="chess-connect" className="mb-8">

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { CheckCircle, Lock, Zap, Lightbulb, Search, BrainCircuit, X, BookOpen, Target, Crown, Trophy, Clock, Shield } from 'lucide-react';
+import { CheckCircle, Lock, Zap, Lightbulb, Search, BrainCircuit, X, BookOpen, Target, Crown, Trophy, Clock, Shield, AlertCircle, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { ChessComLogo, LichessLogo, MasterDBLogo } from '../ui/Logos';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -11,7 +11,7 @@ interface RightPanelProps {
     connections: { chessCom: boolean; lichess: boolean; masterDb: boolean };
     openManualInputs: (canSkip?: boolean) => void;
     theme: { color: string };
-    activeTab: string;
+    activeTab: 'report' | 'openings' | string;
     onUpgradeClick: () => void;
     isDemoMode: boolean;
     setDemoMode: (mode: boolean) => void;
@@ -31,11 +31,13 @@ interface RightPanelProps {
     reportWidgetHint?: string | null;
     /** Dynamic data for the active widget hint */
     reportWidgetData?: any;
+    /** The active tab inside the Report Dashboard (overview, openings, etc) */
+    reportActiveTab?: string;
     /** Callback to clear active insights */
     onClearInsight?: () => void;
 }
 
-const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, theme, activeTab, onUpgradeClick, isDemoMode, onNavigate, toggleConnection, openModal, isMatchSettingsSet, hasJoinedCoaching, onJoinCoaching, pgnUploaded, setPgnUploaded, isOpen = true, onClose, reportActiveSlice, reportWidgetHint, reportWidgetData, onClearInsight }) => {
+const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, theme, activeTab, onUpgradeClick, isDemoMode, onNavigate, toggleConnection, openModal, isMatchSettingsSet, hasJoinedCoaching, onJoinCoaching, pgnUploaded, setPgnUploaded, isOpen = true, onClose, reportActiveSlice, reportWidgetHint, reportWidgetData, reportActiveTab, onClearInsight }) => {
     const isConnected = Object.values(connections).some(Boolean);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [reportContextTab, setReportContextTab] = useState<'insights' | 'ai' | 'filters'>('insights');
@@ -153,7 +155,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
                 />
             )}
 
-            <aside className={`w-[280px] lg:w-[340px] bg-[#080C14] border-l border-white/5 flex flex-col fixed right-0 top-0 h-screen overflow-y-auto no-scrollbar z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+            <aside className={`w-[280px] lg:w-[340px] bg-[#080C14] border-l border-white/5 flex flex-col fixed right-0 top-0 h-screen overflow-y-auto premium-scrollbar z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
                 {/* Mobile Close Button */}
                 {onClose && (
                     <button onClick={onClose} className="lg:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-white/5 rounded-lg z-50 transition-colors">
@@ -174,11 +176,11 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
                     </div>
                 )}
 
-                {activeTab === 'report' && isConnected ? (
+                {(activeTab === 'report' || activeTab === 'openings') && isConnected ? (
                     // --- REPORT CONTEXT PANEL ---
                     <div className="flex flex-col h-full animate-in fade-in">
                         {/* Sub-tabs for Right Panel */}
-                        <div className="flex border-b border-white/5 px-4 xl:px-6 pt-4">
+                        <div className="flex border-b border-white/5 px-4 xl:px-6 pt-4 shrink-0">
                             {[
                                 { id: 'insights', label: 'Insights', icon: Lightbulb },
                                 { id: 'ai', label: 'AI Coach', icon: BrainCircuit }
@@ -197,7 +199,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
                             ))}
                         </div>
 
-                        <div className="p-4 xl:p-6 flex-1 overflow-y-auto no-scrollbar">
+                        <div className="p-4 xl:p-6 flex-1">
                             {reportContextTab === 'insights' && (() => {
                                 // Dynamic: radar slice selected
                                 const SLICE_INSIGHTS: Record<string, { title: string; desc: string; color: string; Icon: any; bgLight: string; borderHover: string; buttonColor: string; action: string }> = {
@@ -330,43 +332,125 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
                                     );
                                 }
 
-                                // Default: static insights
+                                // Default: static insights based on active tab
+                                if (activeTab === 'openings' || reportActiveTab === 'openings') {
+                                    return (
+                                        <div className="space-y-6">
+                                            <div className="flex flex-col h-full bg-gradient-to-br from-[#0F1623] to-[#0B1220] border border-white/5 rounded-xl p-5 relative overflow-hidden group shadow-lg">
+                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.03),transparent_60%)] pointer-events-none" />
+
+                                                <div className="flex items-center gap-2 mb-5 relative z-10">
+                                                    <AlertCircle size={18} className="text-red-400" />
+                                                    <h3 className="text-sm font-bold text-white tracking-tight">Common Early Mistakes</h3>
+                                                </div>
+
+                                                <div className="space-y-3 relative z-10">
+                                                    {[
+                                                        { title: 'Premature Queen Attacks', severity: 'Critical', badge: 'high', frequency: '18% of games', icon: Zap, desc: 'Bringing the queen out before minor pieces are developed.' },
+                                                        { title: 'Missed Development', severity: 'Warning', badge: 'medium', frequency: '24% of games', icon: ShieldAlert, desc: 'Moving the same piece twice in the first 10 moves.' },
+                                                        { title: 'King Safety', severity: 'Crucial', badge: 'high', frequency: '12% of games', icon: AlertTriangle, desc: 'Delaying castling past move 12 in open positions.' },
+                                                    ].map((mistake, idx) => {
+                                                        const Icon = mistake.icon;
+                                                        const isCritical = mistake.badge === 'high';
+                                                        const glowClass = isCritical ? 'hover-glow-red-strong' : 'hover-glow-amber-strong';
+                                                        const borderClass = isCritical ? 'border-red-500/10 hover:border-red-500/30' : 'border-amber-500/10 hover:border-amber-500/30';
+                                                        const bgClass = isCritical ? 'bg-red-500/5' : 'bg-amber-500/5';
+                                                        const textHoverClass = isCritical ? 'group-hover/item:text-red-300' : 'group-hover/item:text-amber-300';
+
+                                                        return (
+                                                            <div key={idx} className={`${bgClass} border ${borderClass} rounded-xl p-4 transition-all duration-300 flex items-start gap-4 group/item cursor-default ${glowClass}`}>
+                                                                <div className="w-8 h-8 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover/item:scale-110 mt-0.5 shadow-inner">
+                                                                    <Icon size={14} className={isCritical ? 'text-red-400' : 'text-amber-400'} />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-start justify-between mb-1.5">
+                                                                        <h4 className={`font-bold text-white text-xs transition-colors duration-300 ${textHoverClass}`}>{mistake.title}</h4>
+                                                                        <Badge type={mistake.badge as any} label={mistake.severity} />
+                                                                    </div>
+                                                                    <p className="text-[11px] text-slate-400 mb-2.5 leading-relaxed group-hover/item:text-slate-300 transition-colors duration-300">{mistake.desc}</p>
+                                                                    <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                                                        Occurs in <span className="text-slate-300">{mistake.frequency}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Recommended Training */}
+                                            <div className="bg-[#080C14] border border-amber-500/20 rounded-xl p-5 relative overflow-hidden group shadow-lg shrink-0 cursor-default transition-all duration-300 hover:border-amber-500/40 hover-glow-amber-strong">
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-[100px] pointer-events-none" />
+                                                <div className="relative z-10">
+                                                    <h3 className={DASHBOARD_FONTS.label + " mb-3 text-amber-500"}>Recommended Training</h3>
+                                                    <div className="text-[13px] font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">Opening Repertoire Lab</div>
+                                                    <div className="text-xs font-medium text-slate-400 leading-relaxed mb-4 group-hover:text-slate-300 transition-colors">Refine your repertoire and fix early mistakes.</div>
+                                                    <Button size="sm" themeColor="amber" fullWidth onClick={() => onNavigate('coaching')} className="font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all hover:-translate-y-0.5 hover-glow-amber-strong text-[#080C14]">Find a Coach</Button>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-[10px] text-slate-600 text-center">Click a table row to see specific insights</p>
+                                        </div>
+                                    );
+                                }
+
+                                // Fallback to Dashboard/Overview Tab Default
                                 return (
                                     <div className="space-y-6">
-                                        <div>
-                                            <h3 className={DASHBOARD_FONTS.label + " mb-3"}>Top Weaknesses</h3>
-                                            <div className="space-y-2">
-                                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg group cursor-default hover-glow-red-strong">
-                                                    <div className="text-sm font-bold text-white mb-1 group-hover:text-red-300 transition-colors">Time Mgmt (Endgame)</div>
-                                                    <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">Low clock leads to 3x more blunders.</div>
-                                                </div>
-                                                <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-lg group cursor-default hover-glow-red-strong">
-                                                    <div className="text-sm font-bold text-slate-300 mb-1 group-hover:text-red-300 transition-colors">Missed Tactics</div>
-                                                    <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">Overlooking 2-move pins (+4 avg eval loss).</div>
-                                                </div>
+                                        <div className="flex flex-col h-full bg-gradient-to-br from-[#0F1623] to-[#0B1220] border border-white/5 rounded-xl p-5 relative overflow-hidden group shadow-lg">
+                                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.03),transparent_60%)] pointer-events-none" />
+
+                                            <div className="flex items-center gap-2 mb-5 relative z-10">
+                                                <AlertCircle size={18} className="text-red-400" />
+                                                <h3 className="text-sm font-bold text-white tracking-tight">Areas to Improve</h3>
+                                            </div>
+
+                                            <div className="space-y-3 relative z-10">
+                                                {[
+                                                    { title: 'Time Mgmt (Endgame)', severity: 'Critical', badge: 'high', frequency: '32% OF GAMES', icon: Clock, desc: 'Low clock leads to 3x more blunders.' },
+                                                    { title: 'Missed Tactics', severity: 'Warning', badge: 'medium', frequency: '24% OF GAMES', icon: Target, desc: 'Overlooking 2-move pins (+4 avg eval loss).' },
+                                                    { title: 'King Safety', severity: 'Crucial', badge: 'high', frequency: '12% OF GAMES', icon: ShieldAlert, desc: 'Delaying castling past move 12 in open positions.' },
+                                                ].map((mistake, idx) => {
+                                                    const Icon = mistake.icon;
+                                                    const isCritical = mistake.badge === 'high';
+                                                    const glowClass = isCritical ? 'hover-glow-red-strong' : 'hover-glow-amber-strong';
+                                                    const borderClass = isCritical ? 'border-red-500/10 hover:border-red-500/30' : 'border-amber-500/10 hover:border-amber-500/30';
+                                                    const bgClass = isCritical ? 'bg-red-500/5' : 'bg-amber-500/5';
+                                                    const textHoverClass = isCritical ? 'group-hover/item:text-red-300' : 'group-hover/item:text-amber-300';
+
+                                                    return (
+                                                        <div key={idx} className={`${bgClass} border ${borderClass} rounded-xl p-4 transition-all duration-300 flex items-start gap-4 group/item cursor-default ${glowClass}`}>
+                                                            <div className="w-8 h-8 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover/item:scale-110 mt-0.5 shadow-inner">
+                                                                <Icon size={14} className={isCritical ? 'text-red-400' : 'text-amber-400'} />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="flex items-start justify-between mb-1.5">
+                                                                    <h4 className={`font-bold text-white text-xs transition-colors duration-300 ${textHoverClass}`}>{mistake.title}</h4>
+                                                                    <Badge type={mistake.badge as any} label={mistake.severity} />
+                                                                </div>
+                                                                <p className="text-[11px] text-slate-400 mb-2.5 leading-relaxed group-hover/item:text-slate-300 transition-colors duration-300">{mistake.desc}</p>
+                                                                <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                                                    OCCURS IN <span className="text-slate-300">{mistake.frequency}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
-                                        <div>
-                                            <h3 className={DASHBOARD_FONTS.label + " mb-3"}>Top Strengths</h3>
-                                            <div className="space-y-2">
-                                                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg group cursor-default hover-glow-emerald-strong">
-                                                    <div className="text-sm font-bold text-white mb-1 group-hover:text-emerald-300 transition-colors">Resourcefulness</div>
-                                                    <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">You save 30% of lost positions.</div>
-                                                </div>
+                                        {/* Recommended Training */}
+                                        <div className="bg-[#080C14] border border-amber-500/20 rounded-xl p-5 relative overflow-hidden group shadow-lg shrink-0 cursor-default transition-all duration-300 hover:border-amber-500/40 hover-glow-amber-strong">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-[100px] pointer-events-none" />
+                                            <div className="relative z-10">
+                                                <h3 className={DASHBOARD_FONTS.label + " mb-3 text-amber-500"}>Recommended Training</h3>
+                                                <div className="text-[13px] font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">Group: Time Management</div>
+                                                <div className="text-xs font-medium text-slate-400 leading-relaxed mb-4 group-hover:text-slate-300 transition-colors">Fix your biggest leak.</div>
+                                                <Button size="sm" themeColor="amber" fullWidth onClick={() => onNavigate('coaching')} className="font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all hover:-translate-y-0.5 hover-glow-amber-strong text-[#080C14]">Find a Coach</Button>
                                             </div>
                                         </div>
 
-                                        <div>
-                                            <h3 className={DASHBOARD_FONTS.label + " mb-3"}>Recommended Training</h3>
-                                            <Card padding="p-3" className="mb-2 bg-gradient-to-r from-violet-900/40 to-indigo-900/40 border-violet-500/30 group cursor-default hover-glow-violet-strong">
-                                                <div className="text-sm font-bold text-white mb-1 group-hover:text-violet-300 transition-colors">Group: Time Management</div>
-                                                <div className="text-xs text-slate-400 mb-3 group-hover:text-slate-300 transition-colors">Fix your biggest leak.</div>
-                                                <Button size="sm" themeColor={theme.color} fullWidth className="transition-transform duration-300 group-hover:scale-[1.02] hover-glow-violet-strong" onClick={() => onNavigate('coaching')}>View Details</Button>
-                                            </Card>
-                                        </div>
-
-                                        <p className="text-[10px] text-slate-600 text-center">Click a radar slice or widget icon to see specific insights</p>
+                                        <p className="text-[10px] text-slate-600 text-center">Click a table row to see specific insights</p>
                                     </div>
                                 );
                             })()}

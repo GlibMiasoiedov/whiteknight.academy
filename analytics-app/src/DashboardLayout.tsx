@@ -57,6 +57,7 @@ const DashboardLayout = () => {
     const [reportActiveSlice, setReportActiveSlice] = useState<string | null>(null);
     const [reportWidgetHint, setReportWidgetHint] = useState<string | null>(null);
     const [reportWidgetData, setReportWidgetData] = useState<any>(null);
+    const [reportActiveTab, setReportActiveTab] = useState<string>('overview');
 
     const [isDemoMode, setDemoMode] = useState(false);
 
@@ -111,7 +112,7 @@ const DashboardLayout = () => {
     };
 
     return (
-        <div className="flex min-h-screen font-sans bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white relative">
+        <div className="flex h-screen overflow-hidden font-sans bg-[#080C14] text-white selection:bg-violet-500/30 selection:text-white relative">
             <MobileGate />
             <div className="fixed bottom-1 right-1 text-[10px] text-slate-700 z-[9999]">v2.9.9 - 2026-02-21</div>
             <DevToolbar
@@ -178,7 +179,7 @@ const DashboardLayout = () => {
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 sm:h-10 bg-white/20 rounded-r-full group-hover:h-8 sm:group-hover:h-12 transition-all duration-300 shadow-[0_0_10px_currentColor] z-10" style={{ backgroundColor: currentTheme.color, color: currentTheme.color }} />
             </button>
 
-            <main className="flex-1 w-full relative">
+            <main className={`flex-1 relative h-screen overflow-y-auto premium-scrollbar ${!isEnrollPage ? 'lg:mr-[340px]' : ''}`}>
                 {isEnrollPage ? (
                     <div className="pl-0 2xl:pl-[290px] w-full transition-all duration-300">
                         <StandardPlanPage
@@ -208,6 +209,12 @@ const DashboardLayout = () => {
                             setReportWidgetHint(hint);
                             setReportWidgetData(data || null);
                             setReportActiveSlice(null);
+                        }}
+                        onReportActiveTabChange={(tab: string) => {
+                            setReportActiveTab(tab);
+                            setReportActiveSlice(null);
+                            setReportWidgetHint(null);
+                            setReportWidgetData(null);
                         }}
                     />
                 )}
@@ -244,6 +251,7 @@ const DashboardLayout = () => {
                         reportActiveSlice={reportActiveSlice}
                         reportWidgetHint={reportWidgetHint}
                         reportWidgetData={reportWidgetData}
+                        reportActiveTab={reportActiveTab}
                         onClearInsight={() => {
                             setReportActiveSlice(null);
                             setReportWidgetHint(null);

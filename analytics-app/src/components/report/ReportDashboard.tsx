@@ -12,7 +12,9 @@ import MostPlayedOpenings from './widgets/MostPlayedOpenings';
 import ActivityHeatmap from './widgets/ActivityHeatmap';
 import TopOpponentsList from './widgets/TopOpponentsList';
 import RatingDynamicsChart from './widgets/RatingDynamicsChart';
+import FiltersDrawer from './widgets/FiltersDrawer';
 import EloExplanationModal from '../modals/EloExplanationModal';
+import OpeningsTab from './tabs/OpeningsTab';
 
 export interface ReportDashboardProps {
     showStateB: boolean;
@@ -24,6 +26,8 @@ export interface ReportDashboardProps {
     onWidgetHint?: (hintKey: string, data?: any) => void;
     /** 0–1 value representing how many days to show in heatmap */
     timeRangeDays?: number;
+    /** Fires when the active sub-tab inside Report changes */
+    onActiveTabChange?: (tab: string) => void;
 }
 
 const REPORT_TABS = [
@@ -38,9 +42,17 @@ const REPORT_TABS = [
     { id: 'action-plan', label: 'Action Plan', highlight: true }
 ];
 
-const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, onUpgradeClick: _onUpgradeClick, onActiveSliceChange, onWidgetHint }) => {
+const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, onUpgradeClick: _onUpgradeClick, onActiveSliceChange, onWidgetHint, onActiveTabChange }) => {
     const [activeTab, setActiveTab] = useState('overview');
+
+    // Notify parent component when local activeTab changes, and reset local slice state
+    React.useEffect(() => {
+        onActiveTabChange?.(activeTab);
+        setActiveSlice(null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab]);
     const [isEloModalOpen, setIsEloModalOpen] = useState(false);
+    const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
 
     // Global Filters State
     // NOTE FOR V2 (DATA INTEGRATION): 
@@ -174,6 +186,16 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                     onClick={() => setActiveDropdown(null)}
                 />
             )}
+
+            {/* Advanced Filters Button */}
+            <div className="ml-auto">
+                <button
+                    onClick={() => setIsFiltersDrawerOpen(true)}
+                    className="bg-violet-600/20 hover:bg-violet-600 text-violet-400 hover:text-white border border-violet-500/30 rounded-full px-4 py-1.5 text-xs font-bold transition-all flex items-center gap-2 hover-glow-violet-strong hover:-translate-y-0.5"
+                >
+                    <Filter size={14} /> Advanced
+                </button>
+            </div>
         </div>
     );
 
@@ -317,7 +339,6 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                     key={`op - ${filterKey} `}
                     onHintWhite={() => onWidgetHint?.('openings_white')}
                     onHintBlack={() => onWidgetHint?.('openings_black')}
-                    onViewAll={() => setActiveTab('openings')}
                 />
             </div>
         </div>
@@ -326,6 +347,7 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
     return (
         <div className="space-y-4 animate-in fade-in">
             <EloExplanationModal isOpen={isEloModalOpen} onClose={() => setIsEloModalOpen(false)} />
+            <FiltersDrawer isOpen={isFiltersDrawerOpen} onClose={() => setIsFiltersDrawerOpen(false)} />
             <div className="flex justify-between items-end pb-2">
                 <div className="mb-4">
                     <h1 className={DASHBOARD_FONTS.h1 + " mb-1"}>
@@ -355,7 +377,8 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                     {SubNav()}
                     <div className="mt-6">
                         {activeTab === 'overview' && renderOverview()}
-                        {activeTab !== 'overview' && (
+                        {activeTab === 'openings' && <OpeningsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab !== 'overview' && activeTab !== 'openings' && (
                             <div className="py-20 text-center border border-dashed border-white/10 rounded-xl">
                                 <h3 className="text-xl font-bold text-white mb-2">{REPORT_TABS.find(t => t.id === activeTab)?.label}</h3>
                                 <p className="text-slate-400">Detailed analysis module coming soon.</p>
