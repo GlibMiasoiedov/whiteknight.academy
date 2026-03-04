@@ -165,13 +165,13 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
 
                 {/* My Plan / Upgrade Card — hidden for Pro users */}
                 {!isDemoMode && (
-                    <div className="p-4 xl:p-6 pb-2">
-                        <Card className="bg-gradient-to-b from-[#1E1B4B] to-[#0F1623] border-violet-500/20 group hover:border-violet-500/40 relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(139,92,246,0.2)]">
-                            <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity"><Zap size={64} className="text-violet-500 rotate-12" /></div>
-                            <div className="flex justify-between mb-2 xl:mb-3 relative z-10"><span className="text-[10px] xl:text-xs font-bold text-violet-300 uppercase tracking-widest">My Plan</span><Badge type="plan" label="Free" className="hover-glow-violet-strong" /></div>
-                            <h3 className="text-base xl:text-lg font-bold text-white mb-1 relative z-10 group-hover:text-violet-300 transition-colors">Get Matched & Trained</h3>
-                            <p className="text-[10px] xl:text-xs text-violet-200/70 mb-4 xl:mb-5 leading-relaxed relative z-10">Unlock detailed reports, 4 live group classes/mo, and personalized coach matching.</p>
-                            <Button fullWidth themeColor={theme.color} className="relative z-10 transition-transform duration-300 group-hover:scale-[1.02] hover-glow-violet-strong" onClick={onUpgradeClick}>Upgrade to Pro</Button>
+                    <div className="p-4 pt-4 xl:p-5 xl:pt-5 pb-2">
+                        <Card padding="p-4" className="bg-gradient-to-b from-[#1E1B4B] to-[#0F1623] border-violet-500/20 group hover:border-violet-500/40 relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(139,92,246,0.2)]">
+                            <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity"><Zap size={48} className="text-violet-500 rotate-12" /></div>
+                            <div className="flex justify-between items-center mb-1.5 relative z-10"><span className="text-[9px] xl:text-[10px] font-bold text-violet-300 uppercase tracking-widest">My Plan</span><Badge type="plan" label="Free" className="hover-glow-violet-strong px-1.5 py-0.5" /></div>
+                            <h3 className="text-sm xl:text-base font-bold text-white mb-1 relative z-10 group-hover:text-violet-300 transition-colors">Get Matched & Trained</h3>
+                            <p className="text-[10px] text-violet-200/70 mb-3 leading-relaxed relative z-10 pr-2">Unlock detailed reports, 4 live group classes/mo, and personalized coach matching.</p>
+                            <Button size="sm" fullWidth themeColor={theme.color} className="relative z-10 transition-transform duration-300 group-hover:scale-[1.02] hover-glow-violet-strong text-xs h-8" onClick={onUpgradeClick}>Upgrade to Pro</Button>
                         </Card>
                     </div>
                 )}
