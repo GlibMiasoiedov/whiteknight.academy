@@ -9,6 +9,7 @@ import Badge from '../ui/Badge';
 import ProgressBar from '../ui/ProgressBar';
 import { DASHBOARD_FONTS } from '../../constants/theme';
 import ReportDashboard from '../report/ReportDashboard';
+import DataMixerPage from '../pages/DataMixerPage';
 
 interface CenterColumnProps {
     connections: { chessCom: boolean; lichess: boolean; masterDb: boolean };
@@ -125,6 +126,7 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
             case 'integrations':
             case 'ai-coach':
             case 'openings':
+            case 'mixer':
                 return renderOtherTabs();
 
             case 'home':
@@ -803,6 +805,7 @@ const CenterColumn: React.FC<CenterColumnProps> = ({ connections, toggleConnecti
             case 'coaching': return renderCoachingTab();
             case 'ai-coach': return renderAICoachTab();
             case 'openings': return renderOpeningLabTab();
+            case 'mixer': return <DataMixerPage onNavigate={onNavigate} isDemoMode={isDemoMode} theme={theme} onReportWidgetHint={onReportWidgetHint} isConnected={isConnected} />;
             default: return null;
         }
     }

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     LayoutDashboard, FileText, Users, Grid,
-    Brain, BookOpen, Lock, Settings, CreditCard, Shield, LogOut, ChevronDown
+    Brain, BookOpen, Lock, Settings, CreditCard, Shield, LogOut, ChevronDown, Layers
 } from 'lucide-react';
 import Badge from '../ui/Badge';
 import { DASHBOARD_FONTS } from '../../constants/theme';
@@ -22,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, userM
     const navItems = [
         { id: 'home', icon: LayoutDashboard, label: 'Home (Data Hub)' },
         { id: 'report', icon: FileText, label: 'Report' },
+        { id: 'mixer', icon: Layers, label: 'Data Mixer', badge: 'NEW' },
         // { id: 'training', icon: Trophy, label: 'Training' },
         { id: 'coaching', icon: Users, label: 'Coaching' },
         { id: 'integrations', icon: Grid, label: 'Apps / Integrations' },
@@ -63,6 +64,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, theme, userM
                                 )}
                                 <item.icon size={16} className="mr-2.5 xl:mr-3 transition-colors" style={{ color: activeTab === item.id ? theme.color : 'currentColor' }} />
                                 <span className="truncate">{item.label}</span>
+                                {'badge' in item && item.badge && (
+                                    <span className="ml-auto text-[8px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">{item.badge}</span>
+                                )}
                             </button>
                         ))}
 

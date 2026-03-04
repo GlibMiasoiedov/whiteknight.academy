@@ -29,14 +29,14 @@ const DashboardLayout = () => {
     // Derive activeTab from URL path: /dashboard/report → 'report', /dashboard → 'home'
     const pathAfterDashboard = location.pathname.replace(/^\/dashboard\/?/, '');
     const pathSegment = pathAfterDashboard.split('/')[0];
-    const TAB_MAP: Record<string, string> = { '': 'home', 'report': 'report', 'coaching': 'coaching', 'apps': 'integrations', 'ai-coach': 'ai-coach', 'opening-lab': 'openings' };
+    const TAB_MAP: Record<string, string> = { '': 'home', 'report': 'report', 'coaching': 'coaching', 'apps': 'integrations', 'ai-coach': 'ai-coach', 'opening-lab': 'openings', 'datamixer': 'mixer' };
     const activeTab = TAB_MAP[pathSegment] || 'home';
 
     // Detect coaching sub-routes
     const isEnrollPage = pathAfterDashboard === 'coaching/enroll';
 
     const setActiveTab = useCallback((tab: string) => {
-        const REVERSE_MAP: Record<string, string> = { 'home': '', 'report': 'report', 'coaching': 'coaching', 'integrations': 'apps', 'ai-coach': 'ai-coach', 'openings': 'opening-lab' };
+        const REVERSE_MAP: Record<string, string> = { 'home': '', 'report': 'report', 'coaching': 'coaching', 'integrations': 'apps', 'ai-coach': 'ai-coach', 'openings': 'opening-lab', 'mixer': 'datamixer' };
         const path = REVERSE_MAP[tab] || '';
         navigate(`/dashboard${path ? `/${path}` : ''}`);
     }, [navigate]);

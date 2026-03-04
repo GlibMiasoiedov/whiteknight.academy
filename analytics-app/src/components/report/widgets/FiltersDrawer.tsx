@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import Button from '../../ui/Button';
+import { DASHBOARD_FONTS, THEMES } from '../../../constants/theme';
 
 interface FiltersDrawerProps {
     isOpen: boolean;
@@ -59,7 +61,7 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
         else setter([...state, item]);
     };
 
-    return (
+    return createPortal(
         <>
             {/* Backdrop */}
             {isOpen && (
@@ -70,11 +72,11 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
             )}
 
             {/* Sidebar Drawer */}
-            <aside className={`w-[320px] bg-[#0B1220] border-l border-white/10 flex flex-col fixed inset-y-0 right-0 z-[70] shadow-2xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <aside className={`w-[320px] bg-[#0B1220] border-l border-white/10 flex flex-col fixed inset-y-0 right-0 z-[60] shadow-2xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#0F1623]">
-                    <h2 className="text-lg font-bold text-white tracking-wider flex items-center gap-2">
+                    <h2 className={`${DASHBOARD_FONTS.h2} flex items-center gap-2`}>
                         Advanced Filters
                     </h2>
                     <button onClick={onClose} className="p-2 -mr-2 text-slate-400 hover:text-white bg-white/5 rounded-lg transition-colors">
@@ -87,13 +89,13 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
 
                     {/* Order Block */}
                     <div>
-                        <div className="text-xs tracking-widest text-slate-400 font-bold mb-3 uppercase">Order</div>
+                        <div className={`${DASHBOARD_FONTS.label} mb-3`}>Order</div>
                         <div className="flex rounded-lg overflow-hidden border border-white/10">
                             {ORDER_OPTIONS.map(opt => (
                                 <button
                                     key={opt}
                                     onClick={() => setOrder(opt)}
-                                    className={`flex-1 py-1.5 text-[11px] xl:text-xs font-bold transition-colors ${order === opt ? 'bg-violet-600/30 text-violet-300' : 'bg-[#080C14] text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                                    className={`flex-1 py-1.5 text-[11px] xl:text-xs font-bold transition-colors ${order === opt ? 'bg-emerald-600/30 text-emerald-300' : 'bg-[#080C14] text-slate-400 hover:bg-white/5 hover:text-white'}`}
                                 >
                                     {opt}
                                 </button>
@@ -103,17 +105,15 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
 
                     {/* Filter Block Header */}
                     <div>
-                        <div className="text-xs tracking-widest text-slate-400 font-bold mb-3 uppercase">Filter</div>
+                        <div className={`${DASHBOARD_FONTS.label} mb-3`}>Filter</div>
 
                         <div className="flex rounded-lg overflow-hidden border border-white/10 mb-3">
                             {SIDE_OPTIONS.map(opt => (
                                 <button
                                     key={opt}
                                     onClick={() => setSide(opt)}
-                                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] xl:text-xs font-bold transition-colors ${side === opt ? 'bg-violet-600/30 text-violet-300' : 'bg-[#080C14] text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] xl:text-xs font-bold transition-colors ${side === opt ? 'bg-emerald-600/30 text-emerald-300' : 'bg-[#080C14] text-slate-400 hover:bg-white/5 hover:text-white'}`}
                                 >
-                                    {opt === 'White' && '♟ '}
-                                    {opt === 'Black' && '♟ '}
                                     {opt}
                                 </button>
                             ))}
@@ -127,7 +127,7 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
                                         type="checkbox"
                                         checked={selectedTimeControls.includes(tc)}
                                         onChange={() => toggleArrayItem(tc, selectedTimeControls, setSelectedTimeControls)}
-                                        className="rounded bg-white/10 border-white/20 text-violet-500 focus:ring-violet-500"
+                                        className="rounded bg-white/10 border-white/20 text-emerald-500 focus:ring-emerald-500"
                                     />
                                     {tc}
                                 </label>
@@ -141,7 +141,7 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
                                         type="checkbox"
                                         checked={selectedOutcomes.includes(out)}
                                         onChange={() => toggleArrayItem(out, selectedOutcomes, setSelectedOutcomes)}
-                                        className="rounded bg-white/10 border-white/20 text-violet-500 focus:ring-violet-500"
+                                        className="rounded bg-white/10 border-white/20 text-emerald-500 focus:ring-emerald-500"
                                     />
                                     {out}
                                 </label>
@@ -149,26 +149,26 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
                         </FilterSection>
 
                         <FilterSection title="Termination">
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 mt-1 border-b border-white/5 pb-1">Win/Loss</div>
+                            <div className={`${DASHBOARD_FONTS.label} mb-1 mt-1 border-b border-white/5 pb-1`}>Win/Loss</div>
                             {TERMINATIONS.slice(0, 4).map(term => (
                                 <label key={term} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer hover:text-white px-2 py-1 transition-colors">
                                     <input
                                         type="checkbox"
                                         checked={selectedTerminations.includes(term)}
                                         onChange={() => toggleArrayItem(term, selectedTerminations, setSelectedTerminations)}
-                                        className="rounded bg-white/10 border-white/20 text-violet-500 focus:ring-violet-500"
+                                        className="rounded bg-white/10 border-white/20 text-emerald-500 focus:ring-emerald-500"
                                     />
                                     {term}
                                 </label>
                             ))}
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 mt-3 border-b border-white/5 pb-1">Draw</div>
+                            <div className={`${DASHBOARD_FONTS.label} mb-1 mt-3 border-b border-white/5 pb-1`}>Draw</div>
                             {TERMINATIONS.slice(4).map(term => (
                                 <label key={term} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer hover:text-white px-2 py-1 transition-colors">
                                     <input
                                         type="checkbox"
                                         checked={selectedTerminations.includes(term)}
                                         onChange={() => toggleArrayItem(term, selectedTerminations, setSelectedTerminations)}
-                                        className="rounded bg-white/10 border-white/20 text-violet-500 focus:ring-violet-500"
+                                        className="rounded bg-white/10 border-white/20 text-emerald-500 focus:ring-emerald-500"
                                     />
                                     {term}
                                 </label>
@@ -189,7 +189,7 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
 
                 {/* Footer Buttons */}
                 <div className="p-4 border-t border-white/10 bg-[#0F1623] flex flex-col gap-3">
-                    <Button onClick={onClose} fullWidth themeColor="violet" className="font-bold hover-glow-violet-strong shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+                    <Button onClick={onClose} fullWidth themeColor={THEMES.report.color} className="font-bold hover-glow-emerald-strong shadow-[0_0_15px_rgba(16,185,129,0.2)]">
                         Apply Filters
                     </Button>
                     <button onClick={() => {
@@ -198,12 +198,13 @@ const FiltersDrawer: React.FC<FiltersDrawerProps> = ({ isOpen, onClose }) => {
                         setSelectedOutcomes([]);
                         setSelectedTerminations([]);
                         setSelectedTimeControls(['Rapid']);
-                    }} className="text-[11px] font-bold text-slate-500 hover:text-slate-300 uppercase tracking-wider transition-colors w-full text-center py-2">
+                    }} className={`${DASHBOARD_FONTS.label} hover:text-slate-300 transition-colors w-full text-center py-2`}>
                         Reset Defaults
                     </button>
                 </div>
             </aside>
-        </>
+        </>,
+        document.body
     );
 };
 

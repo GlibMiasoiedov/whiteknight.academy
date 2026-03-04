@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Card from '../../ui/Card';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
 import { Activity, Sparkles } from 'lucide-react';
@@ -18,16 +19,14 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
 
     // Track mouse movement to absolutely position a global tooltip
     const handleMouseMove = (e: React.MouseEvent, type: string, dayIdx: number, hourIdx: number, d: any, id: string) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        // Position relative to the hovered item's coordinates
         setHoveredCell({
             type,
             dayIdx,
             hourIdx,
             d,
             id,
-            x: rect.left + rect.width / 2,
-            y: rect.top
+            x: e.clientX,
+            y: e.clientY
         });
     };
 
@@ -230,7 +229,7 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
                                         <div
                                             key={dIdx}
                                             className="w-full h-full relative cursor-pointer flex items-center pr-12 hover:z-50 group"
-                                            onMouseEnter={(e) => handleMouseMove(e, 'day', dIdx, -1, d, `day-${dIdx}`)}
+                                            onMouseMove={(e) => handleMouseMove(e, 'day', dIdx, -1, d, `day-${dIdx}`)}
                                         >
                                             <div className="w-full flex items-center h-full">
                                                 {/* Bar */}
@@ -269,7 +268,7 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
                                                     <div
                                                         key={hIdx}
                                                         className={`w-full h-full rounded-[1px] md:rounded-[2px] border transition-colors relative cursor-pointer hover:border-white/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:z-50 ${isHovered ? 'border-white/50 z-50 ring-1 ring-white' : ''} ${getPerformanceColorClass(cell.total, cell.wins, cell.draws)}`}
-                                                        onMouseEnter={(e) => handleMouseMove(e, 'cell', dIdx, hIdx, cell, `cell-${dIdx}-${hIdx}`)}
+                                                        onMouseMove={(e) => handleMouseMove(e, 'cell', dIdx, hIdx, cell, `cell-${dIdx}-${hIdx}`)}
                                                     />
                                                 );
                                             })}
@@ -326,19 +325,7 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
                                             <div
                                                 key={hIdx}
                                                 className="flex-1 h-full relative cursor-pointer pointer-events-auto flex justify-center group"
-                                                onMouseEnter={(e) => {
-                                                    const rect = e.currentTarget.getBoundingClientRect();
-                                                    const visibleHeight = (heightPercent / 100) * rect.height;
-                                                    setHoveredCell({
-                                                        type: 'hour',
-                                                        dayIdx: -1,
-                                                        hourIdx: hIdx,
-                                                        d: h,
-                                                        id: `hour-${hIdx}`,
-                                                        x: rect.left + rect.width / 2,
-                                                        y: rect.bottom - visibleHeight
-                                                    });
-                                                }}
+                                                onMouseMove={(e) => handleMouseMove(e, 'hour', -1, hIdx, h, `hour-${hIdx}`)}
                                             >
                                                 <div
                                                     className={`absolute bottom-0 w-3 md:w-4 rounded-t-md transition-all duration-300 ${isHovered ? 'shadow-[0_0_12px_rgba(255,255,255,0.3)] ring-1 ring-white/30 scale-x-110 z-10' : ''} ${getPerformanceColorClass(h.total, h.wins, h.draws)}`}
@@ -368,12 +355,12 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
                 </div>
 
                 {/* Global React Portal Tooltip */}
-                {hoveredCell && (
+                {hoveredCell && createPortal(
                     <div
-                        className="fixed z-[99999] pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95 bg-[#0F1623]/95 backdrop-blur-md text-white text-[11px] px-3 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] whitespace-nowrap flex flex-col border border-emerald-500/30"
+                        className="fixed z-[55] pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95 bg-[#0F1623]/95 backdrop-blur-md text-white text-[11px] px-3 py-2 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] whitespace-nowrap flex flex-col border border-emerald-500/30"
                         style={{
-                            left: `${hoveredCell.type === 'day' ? hoveredCell.x + 12 : hoveredCell.x}px`,
-                            top: `${hoveredCell.type === 'day' ? hoveredCell.y + 12 : hoveredCell.y - 8}px`, // Shift top up slightly for cell/hour to have margin
+                            left: `${hoveredCell.type === 'day' ? hoveredCell.x + 16 : hoveredCell.x}px`,
+                            top: `${hoveredCell.type === 'day' ? hoveredCell.y : hoveredCell.y - 12}px`, // Shift top up slightly for cell/hour to have margin
                             transform: hoveredCell.type === 'day' ? 'translateY(-50%)' : 'translate(-50%, -100%)',
                             alignItems: hoveredCell.type === 'day' ? 'flex-start' : 'center',
                         }}
@@ -407,9 +394,9 @@ const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onHint }) => {
 
                         {/* Arrow Pointer */}
                         <div
-                            className={`absolute border-[5px] border-transparent ${hoveredCell.type === 'day' ? 'top-1/2 right-full -translate-y-1/2 border-r-[#0F1623]' : 'top-full left-1/2 -translate-x-1/2 border-t-[#0F1623]'}`}
                         />
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </div>
         </Card>

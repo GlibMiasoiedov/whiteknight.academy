@@ -10,11 +10,14 @@ import TimeControlsTable from './widgets/TimeControlsTable';
 import EloEstimateCard from './widgets/EloEstimateCard';
 import MostPlayedOpenings from './widgets/MostPlayedOpenings';
 import ActivityHeatmap from './widgets/ActivityHeatmap';
-import TopOpponentsList from './widgets/TopOpponentsList';
+import OpponentsMatchupsTab from './tabs/OpponentsMatchupsTab';
 import RatingDynamicsChart from './widgets/RatingDynamicsChart';
 import FiltersDrawer from './widgets/FiltersDrawer';
 import EloExplanationModal from '../modals/EloExplanationModal';
 import OpeningsTab from './tabs/OpeningsTab';
+import MiddlegameTacticsTab from './tabs/MiddlegameTacticsTab';
+import EndgameTab from './tabs/EndgameTab';
+import TimeHabitsTab from './tabs/TimeHabitsTab';
 
 export interface ReportDashboardProps {
     showStateB: boolean;
@@ -37,7 +40,6 @@ const REPORT_TABS = [
     { id: 'endgame', label: 'Endgame' },
     { id: 'time', label: 'Time & Habits' },
     { id: 'opponents', label: 'Opponents' },
-    { id: 'compare', label: 'Compare', isPro: true },
     { id: 'biometrics', label: 'Biometrics', isPro: true },
     { id: 'action-plan', label: 'Action Plan', highlight: true }
 ];
@@ -323,7 +325,6 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                         />
                     </div>
                 </Card>
-                <TopOpponentsList key={`opp - ${filterKey} `} onHint={() => onWidgetHint?.('opponents')} onViewAll={() => setActiveTab('opponents')} />
             </div>
 
             <div className="mb-6">
@@ -378,7 +379,11 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                     <div className="mt-6">
                         {activeTab === 'overview' && renderOverview()}
                         {activeTab === 'openings' && <OpeningsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
-                        {activeTab !== 'overview' && activeTab !== 'openings' && (
+                        {activeTab === 'tactics' && <MiddlegameTacticsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab === 'endgame' && <EndgameTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab === 'time' && <TimeHabitsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab === 'opponents' && <OpponentsMatchupsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab !== 'overview' && activeTab !== 'openings' && activeTab !== 'tactics' && activeTab !== 'endgame' && activeTab !== 'time' && activeTab !== 'opponents' && (
                             <div className="py-20 text-center border border-dashed border-white/10 rounded-xl">
                                 <h3 className="text-xl font-bold text-white mb-2">{REPORT_TABS.find(t => t.id === activeTab)?.label}</h3>
                                 <p className="text-slate-400">Detailed analysis module coming soon.</p>
