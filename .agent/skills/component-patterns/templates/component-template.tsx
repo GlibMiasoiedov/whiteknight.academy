@@ -1,3 +1,4 @@
+// @ts-nocheck — template file, lives outside analytics-app/
 import React from 'react';
 // import { IconName } from 'lucide-react';
 // import Card from '../../ui/Card';

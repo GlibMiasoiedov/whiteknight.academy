@@ -167,3 +167,12 @@ const MyComponent: React.FC<MyComponentProps> = ({ data, onAction }) => {
 // 4. Export
 export default MyComponent;
 ```
+
+
+## Right Panel Recommendations
+- DO NOT place recommendation text blocks (like "Missed Tactics Under Pressure" or "Common Early Mistakes") directly inside the main central column of a report tab. This information strictly belongs inside "RightPanel.tsx".
+- The "Back to General Insights" button in "RightPanel.tsx" should always clear the specific widget insight but keep the context of the current active tab (falling back to that tab's general insights, NOT always jumping back to Overview).
+- **General Insights Fallback Format**: The default general insights for any report tab (Overview, Openings, Tactics, Endgame) MUST adhere to the "Areas to Improve" template:
+  - Title: `<AlertCircle size={18} className="text-red-400" /> Areas to Improve`
+  - 3 Severity boxes (Critical, Warning, Crucial) with specific `bg-red-500/5` or `bg-amber-500/5` styles and uppercase `OCCURS IN` labels.
+  - The "Recommended Training" box below MUST always use the Amber theme (`border-amber-500/20`, `hover-glow-amber-strong`, `bg-amber-500/10` gradient), regardless of the current section's main theme color.

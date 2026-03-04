@@ -19,6 +19,7 @@ import MiddlegameTacticsTab from './tabs/MiddlegameTacticsTab';
 import EndgameTab from './tabs/EndgameTab';
 import TimeHabitsTab from './tabs/TimeHabitsTab';
 import BiometricsTab from './tabs/BiometricsTab';
+import ActionPlanTab from './tabs/ActionPlanTab'; // Added import
 
 export interface ReportDashboardProps {
     showStateB: boolean;
@@ -383,9 +384,10 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ showStateB, theme, on
                         {activeTab === 'tactics' && <MiddlegameTacticsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
                         {activeTab === 'endgame' && <EndgameTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
                         {activeTab === 'time' && <TimeHabitsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
-                        {activeTab === 'opponents' && <OpponentsMatchupsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
-                        {activeTab === 'biometrics' && <BiometricsTab onHint={(hintKey, data) => onWidgetHint?.(hintKey, data)} />}
-                        {activeTab !== 'overview' && activeTab !== 'openings' && activeTab !== 'tactics' && activeTab !== 'endgame' && activeTab !== 'time' && activeTab !== 'opponents' && activeTab !== 'biometrics' && (
+                        {activeTab === 'opponents' && <OpponentsMatchupsTab onHint={(hintKey: any, data?: any) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab === 'biometrics' && <BiometricsTab onHint={(hintKey: any, data?: any) => onWidgetHint?.(hintKey, data)} />}
+                        {activeTab === 'action-plan' && <ActionPlanTab />}
+                        {activeTab !== 'overview' && activeTab !== 'openings' && activeTab !== 'tactics' && activeTab !== 'endgame' && activeTab !== 'time' && activeTab !== 'opponents' && activeTab !== 'biometrics' && activeTab !== 'action-plan' && (
                             <div className="py-20 text-center border border-dashed border-white/10 rounded-xl">
                                 <h3 className="text-xl font-bold text-white mb-2">{REPORT_TABS.find(t => t.id === activeTab)?.label}</h3>
                                 <p className="text-slate-400">Detailed analysis module coming soon.</p>

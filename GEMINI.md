@@ -28,7 +28,7 @@
 
 ## Критичні правила
 1. **Tailwind class strings** — НІКОЛИ пробілів всередині класу. `w - full` = ПОМИЛКА, правильно: `w-full`
-2. **z-index** — ЦІЛЬОВА ієрархія: version badge `z-10` → sidebar `z-40` → RightPanel `z-50` → modals `z-[60]` → critical overlays `z-[200]`. ⚠️ Поточний код має legacy значення (`MobileGate z-[99999]`, `GlobalDebug z-[9999]`, `OnboardingWizard z-[100]`, `FiltersDrawer z-[70]`). Мігрувати при нагоді.
+2. **z-index** — ЦІЛЬОВА ієрархія: version badge `z-10` → sidebar `z-40` → RightPanel `z-50` → tooltips/popups `z-[55]` → modals `z-[60]` → critical overlays `z-[200]`. ⚠️ Поточний код має legacy значення (`MobileGate z-[99999]`, `GlobalDebug z-[9999]`, `OnboardingWizard z-[100]`, `FiltersDrawer z-[70]`). Мігрувати при нагоді.
 3. **Icons** — тільки Lucide React. НІКОЛИ emoji в UI елементах
 4. **Деплоймент** — `npm run build` → `node deploy.js`. Entry point: `index.php` → `app.html` + `vN.html` cache busting
 

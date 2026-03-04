@@ -43,6 +43,29 @@ Landing page uses standard Tailwind breakpoints: `sm:640`, `md:768`, `lg:1024`, 
   ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
 ```
 
+## Widget Grid Layouts (Laptop < 1440px)
+
+For complex dashboard tabs (like Middlegame & Tactics or Openings) on laptop screens (`< 1440px` / before `2xl`), large widgets MUST stack vertically, while smaller widgets can share a row (two small boxes in one row). 
+DO NOT use `lg:grid-cols-[1fr_400px]` if it causes the right column to squish or overlap. Instead, use a responsive grid that stacks on `xl` space and only uses the sidebar layout on `2xl` (1440px+).
+
+```tsx
+// ✅ Correct — Responsive grid stacking for laptops (<1440px / xl)
+<div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-[1fr_400px] gap-6">
+    {/* Large widget: Full width on xl, Left col on 2xl */}
+    <div className="xl:col-span-2 2xl:col-span-1">
+        <LargeWidget />
+    </div>
+    {/* Small widget 1: Left half on xl, Left col on 2xl */}
+    <div className="xl:col-span-1 2xl:col-span-1 2xl:col-start-1 2xl:row-start-2">
+        <SmallWidgetOne />
+    </div>
+    {/* Tall widget 2: Right half on xl, Right col (spanning 2 rows) on 2xl */}
+    <div className="xl:col-span-1 2xl:col-span-1 2xl:col-start-2 2xl:row-start-1 2xl:row-span-2">
+        <TallWidget />
+    </div>
+</div>
+```
+
 ### Enrollment page exception
 On `/dashboard/coaching/enroll`, the RightPanel is part of the page layout (not the global panel), and CenterColumn takes full width.
 
