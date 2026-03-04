@@ -1,3 +1,4 @@
+import { DASHBOARD_FONTS } from '../../../constants/theme';
 import MistakeBreakdown from './tactics/MistakeBreakdown';
 import TacticalMotifsHeatmap from './tactics/TacticalMotifsHeatmap';
 import AdvantageCapitalization from './tactics/AdvantageCapitalization';
@@ -9,10 +10,10 @@ interface MiddlegameTacticsTabProps {
 const MiddlegameTacticsTab: React.FC<MiddlegameTacticsTabProps> = ({ onHint }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Middlegame & Tactics</h2>
-                    <p className="text-slate-400 text-sm">Analysis of your middle-game decision making and tactical vision.</p>
+            <div className="flex flex-col gap-2">
+                <h2 className={DASHBOARD_FONTS.h2}>Middlegame & Tactics</h2>
+                <div className={DASHBOARD_FONTS.body + " max-w-3xl"}>
+                    Analysis of your middle-game decision making and tactical vision.
                 </div>
             </div>
 

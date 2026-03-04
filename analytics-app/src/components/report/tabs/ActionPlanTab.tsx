@@ -1,4 +1,5 @@
 import React from 'react';
+import { DASHBOARD_FONTS } from '../../../constants/theme';
 import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import Badge from '../../ui/Badge';
@@ -7,10 +8,10 @@ import { Target, Calendar, Users, GraduationCap } from 'lucide-react';
 const ActionPlanTab: React.FC = () => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Your Action Plan</h2>
-                    <p className="text-slate-400 text-sm">Targeted recommendations based on your performance over the last 30 days.</p>
+            <div className="flex flex-col gap-2">
+                <h2 className={DASHBOARD_FONTS.h2}>Your Action Plan</h2>
+                <div className={DASHBOARD_FONTS.body + " max-w-3xl"}>
+                    Targeted recommendations based on your performance over the last 30 days.
                 </div>
             </div>
 

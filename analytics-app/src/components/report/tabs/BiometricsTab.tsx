@@ -1,4 +1,5 @@
 import React from 'react';
+import { DASHBOARD_FONTS } from '../../../constants/theme';
 import BiometricsTimelineChart from '../widgets/BiometricsTimelineChart';
 import BiometricsSummaryCard from '../widgets/BiometricsSummaryCard';
 import BiometricsSleepCorrelation from '../widgets/BiometricsSleepCorrelation';
@@ -15,12 +16,12 @@ interface BiometricsTabProps {
 const BiometricsTab: React.FC<BiometricsTabProps> = ({ onHint }) => {
     return (
         <div className="space-y-6">
-            <div className="mb-6">
-                <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Biometrics Overlay</h2>
-                <p className="text-sm font-medium text-slate-400 max-w-2xl">
+            <div className="flex flex-col gap-2">
+                <h2 className={DASHBOARD_FONTS.h2}>Biometrics Overlay</h2>
+                <div className={DASHBOARD_FONTS.body + " max-w-3xl"}>
                     Correlation of physical stress, fatigue, and focus against your chess performance.
                     Identify the exact physical states that lead to blunders or peak accuracy.
-                </p>
+                </div>
             </div>
 
             {/* Row 1: Core Timeline & Summary */}

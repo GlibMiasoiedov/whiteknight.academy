@@ -1,4 +1,5 @@
 import React from 'react';
+import { DASHBOARD_FONTS } from '../../../constants/theme';
 import MostPlayedOpenings from '../widgets/MostPlayedOpenings';
 import OpeningHealthSummary from './openings/OpeningHealthSummary';
 import OpeningSuccessRate from './openings/OpeningSuccessRate';
@@ -10,10 +11,10 @@ interface OpeningsTabProps {
 const OpeningsTab: React.FC<OpeningsTabProps> = ({ onHint }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Opening Repertoire</h2>
-                    <p className="text-slate-400 text-sm">Deep dive into your first 15 moves performance.</p>
+            <div className="flex flex-col gap-2">
+                <h2 className={DASHBOARD_FONTS.h2}>Opening Repertoire</h2>
+                <div className={DASHBOARD_FONTS.body + " max-w-3xl"}>
+                    Deep dive into your first 15 moves performance.
                 </div>
             </div>
 
