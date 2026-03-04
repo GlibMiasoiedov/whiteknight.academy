@@ -178,7 +178,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
 
                 {/* Remove duplicate custom mixer block */}
 
-                {(activeTab === 'report' || activeTab === 'mixer' || activeTab === 'openings' || activeTab === 'tactics' || activeTab === 'endgame' || activeTab === 'time' || activeTab === 'opponents') && isConnected ? (
+                {(activeTab === 'report' || activeTab === 'mixer' || activeTab === 'openings' || activeTab === 'tactics' || activeTab === 'endgame' || activeTab === 'time' || activeTab === 'opponents' || activeTab === 'biometrics') && isConnected ? (
 
                     // --- REPORT CONTEXT PANEL ---
                     <div className="flex flex-col h-full animate-in fade-in">
@@ -251,7 +251,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
                                     mixer_time_bullet: { title: 'About: Bullet (1-2 min)', desc: 'Extremely fast time control. Success relies almost entirely on reflexes, interface speed (pre-moves), and very basic tactical patterns.', action: 'Practice fast mouse movements.', trainingTitle: 'Reflex Training', wTitle: 'High Blunder Rate', wDesc: 'Expected in Bullet; focus on not blundering pieces in 1 move.', sTitle: 'Time Scrambles', sDesc: 'You win many games by flagging opponents.' },
                                     mixer_time_blitz: { title: 'About: Blitz (3-5 min)', desc: 'The most popular format. Requires strong opening preparation and excellent pattern recognition to play good moves instantly.', action: 'Focus on your opening speed.', trainingTitle: 'Pattern Recognition', wTitle: 'Opening Hesitation', wDesc: 'Spending too much time in the first 10 moves.', sTitle: 'Tactical Intuition', sDesc: 'Good instinctive moves in complex positions.' },
                                     mixer_time_rapid: { title: 'About: Rapid (10-15 min)', desc: 'The optimal time control for sustained improvement. Provides enough time to calculate 2-3 move variations while still testing your time management.', action: 'Analyze your Rapid games deeply.', trainingTitle: 'Deep Calculation', wTitle: 'Calculation Errors', wDesc: 'Missing intermediate moves in long sequences.', sTitle: 'Positional Play', sDesc: 'You slowly outplay opponents in closed positions.' },
-                                    mixer_time_classical: { title: 'About: Classical (30+ min)', desc: 'The ultimate test of chess understanding. Accuracy, deep planning, and psychological endurance are the main factors of success.', action: 'Focus on endgame conversions.', trainingTitle: 'Endgame Mastery', wTitle: 'Fatigue', wDesc: 'Accuracy drops significantly after move 40.', sTitle: 'Patience', sDesc: 'Excellent at defending worse positions.' }
+                                    mixer_time_classical: { title: 'About: Classical (30+ min)', desc: 'The ultimate test of chess understanding. Accuracy, deep planning, and psychological endurance are the main factors of success.', action: 'Focus on endgame conversions.', trainingTitle: 'Endgame Mastery', wTitle: 'Fatigue', wDesc: 'Accuracy drops significantly after move 40.', sTitle: 'Patience', sDesc: 'Excellent at defending worse positions.' },
+                                    biometrics_summary: { title: 'About: Biometrics Summary', desc: 'Displays your average heart rate, peak stress levels, and fatigue score during your sessions.', action: 'Take breaks when fatigue exceeds 70%.', trainingTitle: 'Performance Psychology', wTitle: 'High Stress Peaks', wDesc: 'Your heart rate spikes over 130 BPM in complex positions.', sTitle: 'Endurance', sDesc: 'You maintain a stable baseline HR in the opening.' },
+                                    biometrics_timeline: { title: 'About: Focus & Stress Timeline', desc: 'Correlates your heart rate directly with game phases and critical events like blunders.', action: 'Identify which phase causes the most stress.', trainingTitle: 'Time Trouble Management', wTitle: 'Blundering Under Stress', wDesc: 'Most of your blunders happen when HR > 120.', sTitle: 'Calm Openings', sDesc: 'You navigate the first 15 moves with low stress.' },
                                 };
 
 
@@ -731,6 +733,68 @@ const RightPanel: React.FC<RightPanelProps> = ({ connections, openManualInputs, 
                                             <div className="p-3 mt-4 rounded-xl bg-white/3 border border-white/5 text-[10px] text-slate-500 leading-relaxed text-center">
                                                 <span className="text-slate-400 font-bold">Rating note:</span> Chess.com (Elo) and Lichess (Glicko-2) use different scales. Do not compare them numerically.
                                             </div>
+                                        </div>
+                                    );
+                                }
+
+                                {/* 8. BIOMETRICS TAB - OVERALL INSIGHTS (Fallback) */ }
+                                if (activeTab === 'biometrics' || reportActiveTab === 'biometrics') {
+                                    return (
+                                        <div className="space-y-6">
+                                            <div className="flex flex-col h-full bg-gradient-to-br from-[#0F1623] to-[#0B1220] border border-white/5 rounded-xl p-5 relative overflow-hidden group shadow-lg">
+                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.03),transparent_60%)] pointer-events-none" />
+
+                                                <div className="flex items-center gap-2 mb-5 relative z-10">
+                                                    <AlertCircle size={18} className="text-red-400" />
+                                                    <h3 className="text-sm font-bold text-white tracking-tight">Areas to Improve</h3>
+                                                </div>
+
+                                                <div className="space-y-3 relative z-10">
+                                                    {[
+                                                        { title: 'Hydration Warning', severity: 'Critical', badge: 'high', frequency: 'SESSIONS > 45 MINS', icon: AlertTriangle, desc: 'Fatigue spikes typically after 45 mins. Keep water at your desk to maintain clarity.' },
+                                                        { title: 'Tilt Accumulation', severity: 'Crucial', badge: 'high', frequency: 'AFTER 3 LOSSES', icon: TrendingDown, desc: 'Your stress resilience drops after 3 consecutive losses. Step away for 10 minutes.' },
+                                                        { title: 'Heart Rate Spikes', severity: 'Warning', badge: 'medium', frequency: 'DURING TIME TROUBLE', icon: Clock, desc: 'Blunder rate increases 3x when heart rate exceeds 120 BPM.' },
+                                                    ].map((mistake, idx) => {
+                                                        const Icon = mistake.icon;
+                                                        const isCritical = mistake.badge === 'high';
+                                                        const glowClass = isCritical ? 'hover-glow-red-strong' : 'hover-glow-amber-strong';
+                                                        const borderClass = isCritical ? 'border-red-500/10 hover:border-red-500/30' : 'border-amber-500/10 hover:border-amber-500/30';
+                                                        const bgClass = isCritical ? 'bg-red-500/5' : 'bg-amber-500/5';
+                                                        const textHoverClass = isCritical ? 'group-hover/item:text-red-300' : 'group-hover/item:text-amber-300';
+
+                                                        return (
+                                                            <div key={idx} className={`${bgClass} border ${borderClass} rounded-xl p-4 transition-all duration-300 flex items-start gap-4 group/item cursor-default ${glowClass}`}>
+                                                                <div className="w-8 h-8 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover/item:scale-110 mt-0.5 shadow-inner">
+                                                                    <Icon size={14} className={isCritical ? 'text-red-400' : 'text-amber-400'} />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-start justify-between mb-1.5">
+                                                                        <h4 className={`font-bold text-white text-xs transition-colors duration-300 ${textHoverClass}`}>{mistake.title}</h4>
+                                                                        <Badge type={mistake.badge as any} label={mistake.severity} />
+                                                                    </div>
+                                                                    <p className="text-[11px] text-slate-400 mb-2.5 leading-relaxed group-hover/item:text-slate-300 transition-colors duration-300">{mistake.desc}</p>
+                                                                    <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                                                        OCCURS IN <span className="text-slate-300">{mistake.frequency}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Recommended Training */}
+                                            <div className="bg-[#080C14] border border-amber-500/20 rounded-xl p-5 relative overflow-hidden group shadow-lg shrink-0 cursor-default transition-all duration-300 hover:border-amber-500/40 hover-glow-amber-strong">
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-[100px] pointer-events-none" />
+                                                <div className="relative z-10">
+                                                    <h3 className={DASHBOARD_FONTS.label + " mb-3 text-amber-500"}>Recommended Training</h3>
+                                                    <div className="text-[13px] font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">Performance Under Pressure</div>
+                                                    <div className="text-xs font-medium text-slate-400 leading-relaxed mb-4 group-hover:text-slate-300 transition-colors">Join a specialized group session to learn stress management techniques during time scrambles.</div>
+                                                    <Button size="sm" themeColor="amber" fullWidth onClick={() => onNavigate('coaching')} className="font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all hover:-translate-y-0.5 hover-glow-amber-strong text-[#080C14]">Find a Coach</Button>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-[10px] text-slate-600 text-center">Click a table row to see specific insights</p>
                                         </div>
                                     );
                                 }

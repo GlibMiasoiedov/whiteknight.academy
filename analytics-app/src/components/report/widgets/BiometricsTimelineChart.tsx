@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../../ui/Card';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
-import { Activity, Info } from 'lucide-react';
+import { Activity, Sparkles } from 'lucide-react';
 
 interface BiometricsTimelineChartProps {
     onHint?: () => void;
@@ -77,9 +77,9 @@ const BiometricsTimelineChart: React.FC<BiometricsTimelineChartProps> = ({ onHin
                 {onHint && (
                     <button
                         onClick={onHint}
-                        className="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-emerald-strong flex items-center gap-1.5 shrink-0"
+                        className="px-3 py-1 bg-rose-600/20 text-rose-400 hover:bg-rose-600 hover:text-white border border-rose-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-red-strong flex items-center gap-1.5 shrink-0"
                     >
-                        <Info className="w-3 h-3" /> Info
+                        <Sparkles className="w-3 h-3" /> Insights
                     </button>
                 )}
             </div>

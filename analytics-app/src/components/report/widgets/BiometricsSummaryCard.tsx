@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeartPulse, Activity, Zap, ArrowUp, ArrowDown, Info } from 'lucide-react';
+import { HeartPulse, Activity, Zap, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
 import Card from '../../ui/Card';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
 
@@ -20,10 +20,9 @@ const BiometricsSummaryCard: React.FC<BiometricsSummaryCardProps> = ({ onHint })
                 {onHint && (
                     <button
                         onClick={onHint}
-                        className="p-1.5 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/5"
-                        title="What does this mean?"
+                        className="px-3 py-1 bg-purple-600/20 text-purple-400 hover:bg-purple-600 hover:text-white border border-purple-500/30 text-[10px] rounded uppercase tracking-wider font-bold transition-all hover:-translate-y-0.5 hover-glow-violet-strong flex items-center gap-1.5 shrink-0"
                     >
-                        <Info size={14} />
+                        <Sparkles className="w-3 h-3" /> Insights
                     </button>
                 )}
             </div>

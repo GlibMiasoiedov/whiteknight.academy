@@ -2,7 +2,6 @@ import React from 'react';
 import { DASHBOARD_FONTS } from '../../../constants/theme';
 import BiometricsSummaryCard from '../widgets/BiometricsSummaryCard';
 import BiometricsTimelineChart from '../widgets/BiometricsTimelineChart';
-import BiometricsRecommendations from '../widgets/BiometricsRecommendations';
 
 interface BiometricsTabProps {
     onHint: (hint: string, data?: any) => void;
@@ -27,13 +26,10 @@ const BiometricsTab: React.FC<BiometricsTabProps> = ({ onHint }) => {
                     <BiometricsTimelineChart onHint={() => onHint('biometrics_timeline')} />
                 </div>
 
-                {/* Right Stack: Summary & Recommendations */}
+                {/* Right Stack: Summary */}
                 <div className="col-span-1 xl:col-span-4 flex flex-col gap-6">
-                    <div className="flex-1 min-h-[300px]">
+                    <div className="flex-1 w-full h-full min-h-[400px]">
                         <BiometricsSummaryCard onHint={() => onHint('biometrics_summary')} />
-                    </div>
-                    <div className="flex-1 min-h-[300px]">
-                        <BiometricsRecommendations />
                     </div>
                 </div>
 
